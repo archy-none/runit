@@ -7,16 +7,19 @@ fn main() {
 
 fn build() -> Option<String> {
     let mut ctx = Context {
+        typenv: IndexMap::new(),
         refcnt: IndexMap::new(),
     };
     let code = include_str!("../example.prs");
     let ast = Expr::parse(code)?;
+    ast.infer(&mut ctx)?;
     ast.visit(&mut ctx)?;
     ast.compile(&mut ctx)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Context {
+    typenv: IndexMap<Name, Type>,
     refcnt: IndexMap<Name, usize>,
 }
 
@@ -28,12 +31,24 @@ enum Expr {
     Integer(isize),
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum Type {
+    String,
+    Integer,
+}
+
+impl Type {
+    fn is_object(&self) -> bool {
+        matches!(self, Type::String)
+    }
+}
+
 impl Expr {
     fn compile(&self, ctx: &mut Context) -> Option<String> {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => Some(format!(
-                    "{{\n\tlet　mut {name} = {};\n{};\n}}",
+                    "{{\n\tlet mut {name} = {};\n{};\n}}",
                     value.compile(ctx)?,
                     expr.compile(ctx)?
                         .lines()
@@ -43,7 +58,7 @@ impl Expr {
                 )),
                 _ => None,
             },
-            Expr::Variable(name) if ctx.refcnt.get(name) == Some(&1) => Some(name.to_string()),
+            Expr::Variable(name) if *ctx.refcnt.get(name)? == 1 => Some(name.to_string()),
             Expr::Variable(name) => {
                 *ctx.refcnt.get_mut(name)? -= 1;
                 Some(format!("{name}.clone()"))
@@ -57,7 +72,7 @@ impl Expr {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
-                    if !ctx.refcnt.contains_key(&name) {
+                    if !ctx.refcnt.contains_key(&name) && ctx.typenv.get(&name)?.is_object() {
                         ctx.refcnt.insert(name, 0);
                     }
                     value.visit(ctx)?;
@@ -69,6 +84,22 @@ impl Expr {
             _ => {}
         };
         Some(())
+    }
+
+    fn infer(&self, ctx: &mut Context) -> Option<Type> {
+        match self {
+            Expr::Let(name, value, expr) => match *name.clone() {
+                Expr::Variable(name) => {
+                    let vartyp = value.infer(ctx)?;
+                    ctx.typenv.insert(name, vartyp);
+                    expr.infer(ctx)
+                }
+                _ => return None,
+            },
+            Expr::Variable(name) => ctx.typenv.get(name).cloned(),
+            Expr::Integer(_) => Some(Type::Integer),
+            Expr::String(_) => Some(Type::String),
+        }
     }
 
     fn parse(source: &str) -> Option<Self> {
