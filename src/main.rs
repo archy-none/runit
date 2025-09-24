@@ -48,7 +48,7 @@ impl Expr {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => Some(format!(
-                    "{{\n\tlet mut {name} = {};\n{};\n}}",
+                    "{{\n\tlet {name} = {};\n{};\n}}",
                     value.compile(ctx)?,
                     expr.compile(ctx)?
                         .lines()
@@ -58,10 +58,17 @@ impl Expr {
                 )),
                 _ => None,
             },
-            Expr::Variable(name) if *ctx.refcnt.get(name)? == 1 => Some(name.to_string()),
             Expr::Variable(name) => {
-                *ctx.refcnt.get_mut(name)? -= 1;
-                Some(format!("{name}.clone()"))
+                if let Some(cnt) = ctx.refcnt.get_mut(name) {
+                    if *cnt == 1 {
+                        Some(name.to_string())
+                    } else {
+                        *cnt -= 1;
+                        Some(format!("{name}.clone()"))
+                    }
+                } else {
+                    Some(name.to_string())
+                }
             }
             Expr::String(value) => Some(format!("String::from(\"{value}\")")),
             Expr::Integer(value) => Some(format!("{value}usize")),
@@ -72,15 +79,21 @@ impl Expr {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
-                    if !ctx.refcnt.contains_key(&name) && ctx.typenv.get(&name)?.is_object() {
-                        ctx.refcnt.insert(name, 0);
+                    if let Some(var) = ctx.typenv.get(&name) {
+                        if !ctx.refcnt.contains_key(&name) && var.is_object() {
+                            ctx.refcnt.insert(name, 0);
+                        }
                     }
                     value.visit(ctx)?;
                     expr.visit(ctx)?;
                 }
                 _ => return None,
             },
-            Expr::Variable(name) => *ctx.refcnt.get_mut(name)? += 1,
+            Expr::Variable(name) => {
+                if let Some(cnt) = ctx.refcnt.get_mut(name) {
+                    *cnt += 1
+                }
+            }
             _ => {}
         };
         Some(())
