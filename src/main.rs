@@ -125,7 +125,7 @@ mod name {
 
     impl fmt::Display for Name {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            write!(f, "r#{}", self.0)
+            write!(f, "r#_{}", self.0)
         }
     }
 }
