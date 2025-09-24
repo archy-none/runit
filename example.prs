@@ -1,4 +1,6 @@
 let a = "Hello" in
 let b = a in
 let c = b in
-b
+let a = "FUck" in
+let d = a in
+a
