@@ -12,7 +12,6 @@ fn build() -> Option<String> {
     let code = include_str!("../example.prs");
     let ast = Expr::parse(code)?;
     ast.visit(&mut ctx)?;
-    dbg!(&ctx);
     ast.compile(&mut ctx)
 }
 
