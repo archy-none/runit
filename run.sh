@@ -1,3 +1,2 @@
 cargo run > ./example.rs
-rustc --verbose ./example.rs
-rm ./example
+rustc --verbose --emit=metadata ./example.rs
