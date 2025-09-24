@@ -56,7 +56,9 @@ impl Expr {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
-                    ctx.refcnt.insert(name, 0);
+                    if !ctx.refcnt.contains_key(&name) {
+                        ctx.refcnt.insert(name, 0);
+                    }
                     value.visit(ctx)?;
                     expr.visit(ctx)?;
                 }
