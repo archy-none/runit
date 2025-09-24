@@ -25,6 +25,7 @@ enum Expr {
     Let(Box<Expr>, Box<Expr>, Box<Expr>),
     Variable(Name),
     String(String),
+    Integer(isize),
 }
 
 impl Expr {
@@ -32,7 +33,7 @@ impl Expr {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => Some(format!(
-                    "{{\n\tlet {name} = {};\n{};\n}}",
+                    "{{\n\tlet　mut {name} = {};\n{};\n}}",
                     value.compile(ctx)?,
                     expr.compile(ctx)?
                         .lines()
@@ -48,6 +49,7 @@ impl Expr {
                 Some(format!("{name}.clone()"))
             }
             Expr::String(value) => Some(format!("String::from(\"{value}\")")),
+            Expr::Integer(value) => Some(format!("{value}usize")),
         }
     }
 
@@ -64,7 +66,7 @@ impl Expr {
                 _ => return None,
             },
             Expr::Variable(name) => *ctx.refcnt.get_mut(name)? += 1,
-            Expr::String(_) => {}
+            _ => {}
         };
         Some(())
     }
@@ -84,6 +86,8 @@ impl Expr {
             .and_then(|token| token.strip_suffix("\""))
         {
             Some(Expr::String(str.to_string()))
+        } else if let Ok(name) = source.parse() {
+            Some(Expr::Integer(name))
         } else if let Some(name) = Name::new(source) {
             Some(Expr::Variable(name))
         } else {
