@@ -1,5 +1,4 @@
 let a = "Hello" in
-let c = 1 in
-let d = c in
+let b = 100 in
 let b = a in
-c
+a
