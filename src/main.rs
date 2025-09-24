@@ -12,6 +12,7 @@ fn build() -> Option<String> {
     let code = include_str!("../example.prs");
     let ast = Expr::parse(code)?;
     ast.visit(&mut ctx)?;
+    dbg!(&ctx);
     ast.compile(&mut ctx)
 }
 
@@ -29,7 +30,6 @@ enum Expr {
 
 impl Expr {
     fn compile(&self, ctx: &mut Context) -> Option<String> {
-        dbg!((&self, &ctx));
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => Some(format!(
