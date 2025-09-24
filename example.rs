@@ -3,12 +3,18 @@ fn main() {
 	{
 		let r#_b = r#_a.clone();
 		{
-			let r#_c = r#_b;
+			let r#_c = r#_b.clone();
 			{
-				let r#_a = String::from("Bye");
+				let r#_d = r#_b;
 				{
-					let r#_d = r#_a.clone();
-					r#_a;
+					let r#_a = r#_d;
+					{
+						let r#_d = r#_a.clone();
+						{
+							let r#_c = r#_a;
+							r#_c;
+						};
+					};
 				};
 			};
 		};
