@@ -1,0 +1,4 @@
+let a = "Hello" in
+let b = a in
+let c = b in
+b

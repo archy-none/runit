@@ -9,15 +9,8 @@ fn build() -> Option<String> {
     let mut ctx = Context {
         refcnt: IndexMap::new(),
     };
-    let ast = Expr::Let(
-        Box::new(Expr::Variable(Name::new("a")?)),
-        Box::new(Expr::String("Hello".to_owned())),
-        Box::new(Expr::Let(
-            Box::new(Expr::Variable(Name::new("b")?)),
-            Box::new(Expr::Variable(Name::new("a")?)),
-            Box::new(Expr::Variable(Name::new("a")?)),
-        )),
-    );
+    let code = include_str!("../example.prs");
+    let ast = Expr::parse(code)?;
     ast.visit(&mut ctx)?;
     ast.compile(&mut ctx)
 }
@@ -40,7 +33,7 @@ impl Expr {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => Some(format!(
-                    "{{\n\tlet {name} = {};\n{}\n}}",
+                    "{{\n\tlet {name} = {};\n{};\n}}",
                     value.compile(ctx)?,
                     expr.compile(ctx)?
                         .lines()
@@ -73,6 +66,28 @@ impl Expr {
             Expr::String(_) => {}
         };
         Some(())
+    }
+
+    fn parse(source: &str) -> Option<Self> {
+        let source = source.trim();
+        if let Some(token) = source.strip_prefix("let ") {
+            let (name, token) = token.split_once("=")?;
+            let (value, expr) = token.split_once("in")?;
+            Some(Expr::Let(
+                Box::new(Expr::parse(name)?),
+                Box::new(Expr::parse(value)?),
+                Box::new(Expr::parse(expr)?),
+            ))
+        } else if let Some(str) = source
+            .strip_prefix("\"")
+            .and_then(|token| token.strip_suffix("\""))
+        {
+            Some(Expr::String(str.to_string()))
+        } else if let Some(name) = Name::new(source) {
+            Some(Expr::Variable(name))
+        } else {
+            None
+        }
     }
 }
 
