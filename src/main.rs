@@ -175,15 +175,6 @@ impl Expr {
                 Box::new(Expr::parse(value)?),
                 Box::new(Expr::parse(expr)?),
             ))
-        } else if let Some(str) = source
-            .strip_prefix("\"")
-            .and_then(|token| token.strip_suffix("\""))
-        {
-            Ok(Expr::String(str.to_string()))
-        } else if let Ok(name) = source.parse() {
-            Ok(Expr::Integer(name))
-        } else if let Some(name) = Name::new(source) {
-            Ok(Expr::Variable(name))
         } else {
             let tokens: Vec<String> = tokenize(source, SPACE.as_ref())?;
             let binopergen = |n: usize| {
@@ -214,7 +205,19 @@ impl Expr {
             if let Ok(op) = unaryopergen() {
                 return Ok(op);
             }
-            Err(format!("unknown expression: {source}"))
+
+            if let Some(str) = source
+                .strip_prefix("\"")
+                .and_then(|token| token.strip_suffix("\""))
+            {
+                Ok(Expr::String(str.to_string()))
+            } else if let Ok(name) = source.parse() {
+                Ok(Expr::Integer(name))
+            } else if let Some(name) = Name::new(source) {
+                Ok(Expr::Variable(name))
+            } else {
+                Err(format!("unknown expression: {source}"))
+            }
         }
     }
 }
