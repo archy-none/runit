@@ -23,6 +23,9 @@ impl Type {
                 let tokens: Vec<String> = tokenize(source, SPACE.as_ref())?;
                 let ret = ok!(tokens.first())?.trim();
                 let args: Vec<String> = tokenize(&ok!(tokens.get(1..))?.join(SPACE), ",")?;
+                if args.len() == 0 {
+                    return Err(String::new());
+                }
                 Ok(Type::Function(
                     args.iter()
                         .map(|arg| Type::parse(&arg))
