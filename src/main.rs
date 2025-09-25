@@ -46,7 +46,7 @@ enum Expr {
 impl Expr {
     fn compile(&self, ctx: &mut Context) -> Result<String, String> {
         match self {
-            Expr::Let(name, value, expr) => match *name.clone() {
+            Expr::Let(name, value, expr) => Ok(match *name.clone() {
                 Expr::Variable(name) => {
                     let mut statement = String::new();
                     if let Some(is_initial) = ctx.mutenv.get_mut(&name) {
@@ -58,24 +58,15 @@ impl Expr {
                         statement.push_str("let ");
                     };
                     let value = value.compile(ctx)?;
-                    let expr = expr
-                        .compile(ctx)?
-                        .lines()
-                        .map(|line| format!("\t{line}"))
-                        .collect::<Vec<_>>()
-                        .join("\n");
-                    Ok(format!("{{\n\t{statement}{name} = {value};\n{expr};\n}}"))
+                    format!("{statement}{name} = {value};\n")
                 }
                 Expr::Function(name, params) => {
                     let ctx = ok!(ctx.functx.get_mut(&name))?;
-
+                    let Type::Function(annos, ret) = ok!(ctx.typenv.get(&name))?.clone() else {
+                        return Err(format!("can't call to non-function object: {name}"));
+                    };
                     let value = value.compile(ctx)?;
-                    let expr = expr
-                        .compile(ctx)?
-                        .lines()
-                        .map(|line| format!("\t{line}"))
-                        .collect::<Vec<_>>()
-                        .join("\n");
+
                     let mut args = vec![];
                     for param in params {
                         if let Expr::Variable(name) = param {
@@ -83,12 +74,15 @@ impl Expr {
                         }
                     }
                     let args = args.join(", ");
-                    Ok(format!(
-                        "{{\n\tfn {name}({args}) {{\n\t{value}\n}};\n{expr};\n}}"
-                    ))
+                    format!("fn {name}({args}) -> ret {{\n\t{value}\n}}\n")
                 }
                 _ => todo!(),
-            },
+            } + &expr
+                .compile(ctx)?
+                .lines()
+                .map(|line| format!("\t{line}"))
+                .collect::<Vec<_>>()
+                .join("\n")),
             Expr::Variable(name) => {
                 if let Some(cnt) = ctx.refcnt.get_mut(name) {
                     if *cnt == 1 {
