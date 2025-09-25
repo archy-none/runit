@@ -19,7 +19,7 @@ fn build() -> Result<String, String> {
     let ast = Expr::parse(code)?;
     ast.infer(&mut ctx)?;
     ast.visit(&mut ctx)?;
-    dbg!(&ctx);
+    //   dbg!(&ctx);
     ast.compile(&mut ctx)
 }
 
@@ -222,8 +222,8 @@ impl Expr {
                     expr.visit(ctx)?;
                 }
                 Expr::Function(name, _) => {
-                    let ctx = ok!(ctx.functx.get_mut(&name))?;
-                    value.visit(ctx)?;
+                    let func_ctx = ok!(ctx.functx.get_mut(&name))?;
+                    value.visit(func_ctx)?;
                     expr.visit(ctx)?;
                 }
                 _ => todo!(),
@@ -238,6 +238,7 @@ impl Expr {
                     term.visit(ctx)?;
                 }
             }
+            Expr::Proto(_, _, expr) => expr.visit(ctx)?,
             _ => {}
         };
         Ok(())
