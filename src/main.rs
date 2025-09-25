@@ -213,6 +213,32 @@ impl Expr {
                         [Type::Integer, Type::Integer] => Type::Integer,
                         _ => return err,
                     },
+                    "==" => match typs.as_slice() {
+                        [Type::Integer, Type::Integer] => Type::Integer,
+                        [Type::String, Type::String] => Type::String,
+                        _ => return err,
+                    },
+                    "!=" => match typs.as_slice() {
+                        [Type::Integer, Type::Integer] => Type::Integer,
+                        [Type::String, Type::String] => Type::String,
+                        _ => return err,
+                    },
+                    "<" => match typs.as_slice() {
+                        [Type::Integer, Type::Integer] => Type::Integer,
+                        _ => return err,
+                    },
+                    ">" => match typs.as_slice() {
+                        [Type::Integer, Type::Integer] => Type::Integer,
+                        _ => return err,
+                    },
+                    "<=" => match typs.as_slice() {
+                        [Type::Integer, Type::Integer] => Type::Integer,
+                        _ => return err,
+                    },
+                    ">=" => match typs.as_slice() {
+                        [Type::Integer, Type::Integer] => Type::Integer,
+                        _ => return err,
+                    },
                     _ => todo!(),
                 }
             }
