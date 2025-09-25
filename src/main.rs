@@ -350,6 +350,8 @@ impl Expr {
                 Ok(Expr::String(str.to_string()))
             } else if let Ok(name) = source.parse() {
                 Ok(Expr::Integer(name))
+            } else if let Ok(name) = source.parse() {
+                Ok(Expr::Bool(name))
             } else if let Some(name) = Name::new(source) {
                 Ok(Expr::Variable(name))
             } else {
