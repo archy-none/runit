@@ -130,7 +130,9 @@ impl Expr {
                         if *vartyp == valtyp {
                             ctx.mutenv.insert(name, true);
                         } else {
-                            return Err("()".to_owned());
+                            return Err(
+                                "can't re-assign to variable by other typed value".to_owned()
+                            );
                         }
                     } else {
                         ctx.typenv.insert(name, valtyp);
