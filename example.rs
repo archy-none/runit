@@ -1,7 +1,7 @@
 fn main() {
 	let mut r#_a = String::from("Hello");
 	{
-		let r#_b = 100usize;
+		let r#_b = 100usize + 2usize;
 		{
 			r#_a = String::from("Bye");
 			{
