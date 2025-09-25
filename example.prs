@@ -1,3 +1,5 @@
 let a = "Hello" in
 let b = 100 in
+let a = "Bye" in
+let c = a in
 a
