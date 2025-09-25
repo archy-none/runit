@@ -7,7 +7,10 @@ mod typ;
 use typ::Type;
 
 fn main() {
-    println!("fn main() {{ {} }}", build().unwrap())
+    println!(
+        "fn main() {{ println!(\"{{}}\", {{ {} }}) }}",
+        indent!(build().unwrap())
+    );
 }
 
 fn build() -> Result<String, String> {
@@ -66,7 +69,7 @@ impl Expr {
                     let Type::Function(annos, ret) = ok!(ctx.typenv.get(&name))?.clone() else {
                         return Err(format!("can't call to non-function object: {name}"));
                     };
-                    let value = value.compile(func_ctx)?;
+                    let value = indent!(value.compile(func_ctx)?);
                     let ret = ret.compile();
                     let mut args = vec![];
                     for (param, anno) in params.iter().zip(annos) {
@@ -75,7 +78,7 @@ impl Expr {
                         }
                     }
                     let args = args.join(", ");
-                    format!("fn {name}({args}) -> {ret} {{\n\t{value}\n}}\n")
+                    format!("fn {name}({args}) -> {ret} {{\n{value}\n}}\n")
                 }
                 _ => todo!(),
             } + &expr.compile(ctx)?),
