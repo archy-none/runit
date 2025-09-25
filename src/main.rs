@@ -272,6 +272,13 @@ impl Expr {
                             "there's no prototype declaration so can't define function: {name}"
                         ));
                     };
+                    if params.len() != annos.len() {
+                        return Err(format!(
+                            "arguments length not matched between prototype declaration and function definition: {} != {}",
+                            params.len(),
+                            annos.len()
+                        ));
+                    }
                     for (param, anno) in params.iter().zip(annos) {
                         if let Expr::Variable(name) = param {
                             func_ctx.typenv.insert(name.clone(), anno);
@@ -281,7 +288,7 @@ impl Expr {
                     ctx.functx.insert(name, func_ctx);
                     if *ret != value {
                         return Err(format!(
-                            "not matched between prototype declaration and result of type inference: {ret:?} != {value:?}"
+                            "type not matched between prototype declaration and result of type inference: {ret:?} != {value:?}"
                         ));
                     }
                     *ret
