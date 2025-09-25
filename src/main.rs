@@ -88,9 +88,51 @@ impl Expr {
                     Ok(name.to_string())
                 }
             }
-            Expr::Operator(op, terms) => match terms.as_slice() {
-                [lhs, rhs] => Ok(format!("{} {op} {}", lhs.compile(ctx)?, rhs.compile(ctx)?)),
-                [term] => Ok(format!("{op}{}", term.compile(ctx)?)),
+            Expr::Operator(op, terms) => match op.as_str() {
+                "+" => match terms.as_slice() {
+                    [lhs, rhs] => {
+                        let lhs = lhs.compile(ctx)?;
+                        let rhs = rhs.compile(ctx)?;
+                        match ok!(ctx.typexp.get(self))? {
+                            Type::Integer => Ok(format!("{lhs} + {rhs}")),
+                            Type::String => Ok(format!("{lhs} + &{rhs}")),
+                        }
+                    }
+                    _ => todo!(),
+                },
+                "-" => match terms.as_slice() {
+                    [lhs, rhs] => {
+                        let lhs = lhs.compile(ctx)?;
+                        let rhs = rhs.compile(ctx)?;
+                        match ok!(ctx.typexp.get(self))? {
+                            Type::Integer => Ok(format!("{lhs} - {rhs}")),
+                            Type::String => Ok(format!("{lhs}.replace({rhs}, \"\")")),
+                        }
+                    }
+                    _ => todo!(),
+                },
+                "*" => match terms.as_slice() {
+                    [lhs, rhs] => {
+                        let lhs = lhs.compile(ctx)?;
+                        let rhs = rhs.compile(ctx)?;
+                        match ok!(ctx.typexp.get(self))? {
+                            Type::Integer => Ok(format!("{lhs} * {rhs}")),
+                            Type::String => Ok(format!("{lhs}.repeat({rhs})")),
+                        }
+                    }
+                    _ => todo!(),
+                },
+                "/" => match terms.as_slice() {
+                    [lhs, rhs] => {
+                        let lhs = lhs.compile(ctx)?;
+                        let rhs = rhs.compile(ctx)?;
+                        match ok!(ctx.typexp.get(self))? {
+                            Type::Integer => Ok(format!("{lhs} / {rhs}")),
+                            _ => todo!(),
+                        }
+                    }
+                    _ => todo!(),
+                },
                 _ => todo!(),
             },
             Expr::String(value) => Ok(format!("String::from(\"{value}\")")),
@@ -155,6 +197,20 @@ impl Expr {
                     "+" => match typs.as_slice() {
                         [Type::Integer, Type::Integer] => Type::Integer,
                         [Type::String, Type::String] => Type::String,
+                        _ => return err,
+                    },
+                    "-" => match typs.as_slice() {
+                        [Type::Integer, Type::Integer] => Type::Integer,
+                        [Type::String, Type::String] => Type::String,
+                        _ => return err,
+                    },
+                    "*" => match typs.as_slice() {
+                        [Type::Integer, Type::Integer] => Type::Integer,
+                        [Type::String, Type::String] => Type::String,
+                        _ => return err,
+                    },
+                    "/" => match typs.as_slice() {
+                        [Type::Integer, Type::Integer] => Type::Integer,
                         _ => return err,
                     },
                     _ => todo!(),
