@@ -32,4 +32,20 @@ impl Type {
             }
         }
     }
+
+    fn compile(&self) -> String {
+        match self {
+            Type::Integer => "isize".to_string(),
+            Type::String => "String".to_string(),
+            Type::Bool => "bool".to_string(),
+            Type::Function(args, ret) => format!(
+                "fn({}) -> {}",
+                args.iter()
+                    .map(Type::compile)
+                    .collect::<Vec<_>>()
+                    .join(", "),
+                ret.compile()
+            ),
+        }
+    }
 }
