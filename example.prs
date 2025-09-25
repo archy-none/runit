@@ -1,5 +1,5 @@
-let a = "Hello" + "Be" in
-let b = 100 + 2 in
-let a = "Bye" in
+let a = "Hello" + "World" in
+let b = 10 / 2 in
+let a = a + b in
 let c = a in
 a
