@@ -116,3 +116,12 @@ macro_rules! ok {
         }
     };
 }
+#[macro_export]
+macro_rules! indent {
+    ($v: expr) => {
+        $v.lines()
+            .map(|line| format!("\t{line}"))
+            .collect::<Vec<_>>()
+            .join("\n")
+    };
+}
