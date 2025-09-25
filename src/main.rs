@@ -241,6 +241,10 @@ impl Expr {
 
     fn infer(&self, ctx: &mut Context) -> Result<Type, String> {
         let result = match self {
+            Expr::Proto(name, typ, expr) => {
+                ctx.typenv.insert(name.clone(), typ.clone());
+                expr.infer(ctx)?
+            }
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
                     let valtyp = value.infer(ctx)?;
