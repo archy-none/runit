@@ -382,6 +382,9 @@ impl Expr {
             if let Ok(op) = unaryopergen() {
                 return Ok(op);
             }
+            if let Ok(func) = funccall() {
+                return Ok(func);
+            }
 
             if let Some(str) = source
                 .strip_prefix("\"")
