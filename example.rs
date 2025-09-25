@@ -3,7 +3,7 @@ fn main() {
 	{
 		let r#_b = 10isize / 2isize;
 		{
-			r#_a = r#_a.clone().repeat(r#_b);
+			r#_a = r#_a.clone().repeat(r#_b as usize);
 			{
 				let r#_c = r#_a;
 				r#_a;
