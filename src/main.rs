@@ -221,7 +221,7 @@ impl Expr {
                     *cnt += 1
                 }
             }
-            Expr::Operator(_, terms) => {
+            Expr::Operator(_, terms) | Expr::Function(_, terms) => {
                 for term in terms {
                     term.visit(ctx)?;
                 }
