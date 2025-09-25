@@ -213,6 +213,11 @@ impl Expr {
                     *cnt += 1
                 }
             }
+            Expr::Operator(_, terms) => {
+                for term in terms {
+                    term.visit(ctx)?;
+                }
+            }
             _ => {}
         };
         Ok(())
