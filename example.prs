@@ -1,1 +1,2 @@
+proto a = Int Int, Int in
 a 1, 3
