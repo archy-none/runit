@@ -385,10 +385,12 @@ impl Expr {
                 .and_then(|token| token.strip_suffix("\""))
             {
                 Ok(Expr::String(str.to_string()))
-            } else if let Ok(name) = source.parse() {
-                Ok(Expr::Integer(name))
-            } else if let Ok(name) = source.parse() {
-                Ok(Expr::Bool(name))
+            } else if let Ok(int) = source.parse() {
+                Ok(Expr::Integer(int))
+            } else if let Ok(bool) = source.parse() {
+                Ok(Expr::Bool(bool))
+            } else if let Ok(typ) = Type::parse(source) {
+                Ok(Expr::Kind(typ))
             } else if let Some(name) = Name::new(source) {
                 Ok(Expr::Variable(name))
             } else {
