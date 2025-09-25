@@ -207,6 +207,7 @@ impl Expr {
                 _ => todo!(),
             },
             Expr::Kind(_) => todo!(),
+            Expr::Proto(_, _, _) => Ok(String::new()),
         }
     }
 
