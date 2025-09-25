@@ -11,12 +11,7 @@ fn main() {
 }
 
 fn build() -> Result<String, String> {
-    let mut ctx = Context {
-        mutenv: IndexMap::new(),
-        typenv: IndexMap::new(),
-        typexp: IndexMap::new(),
-        refcnt: IndexMap::new(),
-    };
+    let mut ctx = Context::default();
     let code = include_str!("../example.prs");
     let ast = Expr::parse(code)?;
     ast.infer(&mut ctx)?;
@@ -27,9 +22,10 @@ fn build() -> Result<String, String> {
 
 pub const SPACE: &str = " ";
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
 struct Context {
     mutenv: IndexMap<Name, bool>,
+    functx: IndexMap<Name, Context>,
     typenv: IndexMap<Name, Type>,
     typexp: IndexMap<Expr, Type>,
     refcnt: IndexMap<Name, usize>,
@@ -69,6 +65,27 @@ impl Expr {
                         .collect::<Vec<_>>()
                         .join("\n");
                     Ok(format!("{{\n\t{statement}{name} = {value};\n{expr};\n}}"))
+                }
+                Expr::Function(name, params) => {
+                    let ctx = ok!(ctx.functx.get_mut(&name))?;
+
+                    let value = value.compile(ctx)?;
+                    let expr = expr
+                        .compile(ctx)?
+                        .lines()
+                        .map(|line| format!("\t{line}"))
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    let mut args = vec![];
+                    for param in params {
+                        if let Expr::Variable(name) = param {
+                            args.push(name.to_string());
+                        }
+                    }
+                    let args = args.join(", ");
+                    Ok(format!(
+                        "{{\n\tfn {name}({args}) {{\n\t{value}\n}};\n{expr};\n}}"
+                    ))
                 }
                 _ => todo!(),
             },
