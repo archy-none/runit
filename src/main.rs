@@ -122,7 +122,7 @@ impl Expr {
     }
 
     fn infer(&self, ctx: &mut Context) -> Result<Type, String> {
-        let result = match self {
+        Ok(match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
                     let valtyp = value.infer(ctx)?;
@@ -145,19 +145,17 @@ impl Expr {
             Expr::Integer(_) => Type::Integer,
             Expr::String(_) => Type::String,
             Expr::Operator(op, terms) => {
-                let typs = ok!(terms
+                let typs = terms
                     .iter()
-                    .map(|x| ctx.typexp.get(x))
-                    .collect::<Option<Vec<_>>>())?
-                .as_slice();
+                    .map(|i| i.infer(ctx))
+                    .collect::<Result<Vec<_>, String>>()?
+                    .as_slice();
                 match op.as_str() {
                     "+" => match typs {},
                     _ => todo!(),
                 }
             }
-        };
-        ctx.typexp.insert(self.to_owned(), result);
-        Ok(result)
+        })
     }
 
     fn parse(source: &str) -> Result<Self, String> {
