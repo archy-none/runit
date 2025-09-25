@@ -39,9 +39,10 @@ enum Expr {
     String(String),
     Integer(isize),
     Bool(bool),
+    Kind(Type),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Hash, Eq)]
 enum Type {
     String,
     Integer,
@@ -52,6 +53,25 @@ enum Type {
 impl Type {
     fn is_object(&self) -> bool {
         matches!(self, Type::String)
+    }
+
+    fn parse(source: &str) -> Result<Type, String> {
+        let source = source.trim();
+        match source {
+            "Int" => Ok(Type::Integer),
+            "Str" => Ok(Type::String),
+            _ => {
+                let tokens: Vec<String> = tokenize(source, SPACE.as_ref())?;
+                let ret = ok!(tokens.first())?.trim();
+                let args: Vec<String> = tokenize(&ok!(tokens.get(1..))?.join(SPACE), ",")?;
+                Ok(Type::Function(
+                    args.iter()
+                        .map(|arg| Type::parse(&arg))
+                        .collect::<Result<Vec<_>, String>>()?,
+                    Box::new(Type::parse(&ret)?),
+                ))
+            }
+        }
     }
 }
 
@@ -202,6 +222,7 @@ impl Expr {
                 },
                 _ => todo!(),
             },
+            Expr::Kind(_) => todo!(),
         }
     }
 
@@ -327,6 +348,7 @@ impl Expr {
                 }
                 *ret.clone()
             }
+            Expr::Kind(_) => todo!(),
         };
         ctx.typexp.insert(self.to_owned(), result.clone());
         Ok(result)
