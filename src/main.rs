@@ -295,6 +295,27 @@ impl Expr {
                 }
                 _ => return Err("invalid binding".to_owned()),
             },
+            Expr::Function(name, args) => {
+                let Type::Function(params, ret) = ok!(ctx.typenv.get(name))?.clone() else {
+                    return Err(format!("can't call to non-function object: {name}"));
+                };
+                if params.len() != args.len() {
+                    return Err(format!(
+                        "arguments length not matched between function definition and passed from call: {} != {}",
+                        params.len(),
+                        args.len()
+                    ));
+                }
+                for (arg, param) in args.iter().zip(params) {
+                    let arg = arg.infer(ctx)?;
+                    if arg != param {
+                        return Err(format!(
+                            "passed argument did not match to type that's function expects: {arg:?} != {param:?}"
+                        ));
+                    }
+                }
+                *ret.clone()
+            }
             Expr::Variable(name) => ok!(ctx.typenv.get(name).cloned())?,
             Expr::Integer(_) => Type::Integer,
             Expr::String(_) => Type::String,
@@ -353,20 +374,6 @@ impl Expr {
                     },
                     _ => todo!(),
                 }
-            }
-            Expr::Function(name, args) => {
-                let Type::Function(params, ret) = ok!(ctx.typenv.get(name))?.clone() else {
-                    return Err(format!("can't call to non-function object: {name}"));
-                };
-                for (arg, param) in args.iter().zip(params) {
-                    let arg = arg.infer(ctx)?;
-                    if arg != param {
-                        return Err(format!(
-                            "passed argument did not match to type that's function expects: {arg:?} != {param:?}"
-                        ));
-                    }
-                }
-                *ret.clone()
             }
             Expr::Kind(_) => todo!(),
         };
