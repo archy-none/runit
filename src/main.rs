@@ -148,10 +148,13 @@ impl Expr {
                 let typs = terms
                     .iter()
                     .map(|i| i.infer(ctx))
-                    .collect::<Result<Vec<_>, String>>()?
-                    .as_slice();
+                    .collect::<Result<Vec<_>, String>>()?;
+                let err = Err(format!("can't apply `{op}` operator to terms: {typs:?}"));
                 match op.as_str() {
-                    "+" => match typs {},
+                    "+" => match typs.as_slice() {
+                        [Type::Integer, Type::Integer] => Type::Integer,
+                        _ => return err,
+                    },
                     _ => todo!(),
                 }
             }
