@@ -160,7 +160,7 @@ impl Expr {
                 }
             }
         };
-        ctx.typexp.insert(self.to_owned(), result);
+        ctx.typexp.insert(self.to_owned(), result.clone());
         Ok(result)
     }
 
