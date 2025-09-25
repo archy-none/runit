@@ -33,6 +33,7 @@ struct Context {
 
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]
 enum Expr {
+    Proto(Name, Type),
     Let(Box<Expr>, Box<Expr>, Box<Expr>),
     Operator(String, Vec<Expr>),
     Function(Name, Vec<Expr>),
@@ -255,6 +256,22 @@ impl Expr {
                         ctx.typenv.insert(name, valtyp);
                     }
                     expr.infer(ctx)?
+                }
+                Expr::Function(name, params) => {
+                    let mut func_ctx = Context::default();
+                    let Type::Function(annos, ret) = ok!(ctx.typenv.get(&name))?.clone() else {
+                        return Err(format!(
+                            "there's no prototype declaration so can't define function: {name}"
+                        ));
+                    };
+                    for (param, anno) in params.iter().zip(annos) {
+                        if let Expr::Variable(name) = param {
+                            func_ctx.typenv.insert(name.clone(), anno);
+                        }
+                        let value = value.infer(ctx)?;
+                    }
+                    ctx.functx.insert(name, func_ctx);
+                    *ret
                 }
                 _ => return Err("invalid binding".to_owned()),
             },
