@@ -452,6 +452,11 @@ impl Expr {
                 .and_then(|token| token.strip_suffix("\""))
             {
                 Ok(Expr::String(str.to_string()))
+            } else if let Some(expr) = source
+                .strip_prefix("(")
+                .and_then(|token| token.strip_suffix(")"))
+            {
+                Expr::parse(expr)
             } else if let Ok(int) = source.parse() {
                 Ok(Expr::Integer(int))
             } else if let Ok(bool) = source.parse() {
