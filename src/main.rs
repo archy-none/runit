@@ -392,6 +392,9 @@ impl Expr {
             let funccall = || {
                 let name = ok!(tokens.first())?.trim();
                 let args: Vec<String> = tokenize(&ok!(tokens.get(1..))?.join(SPACE), ",")?;
+                if args.len() == 0 {
+                    return Err(String::new());
+                }
                 Ok::<Expr, String>(Expr::Function(
                     ok!(Name::new(name))?,
                     args.iter()
