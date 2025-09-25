@@ -223,6 +223,11 @@ impl Expr {
                     value.visit(ctx)?;
                     expr.visit(ctx)?;
                 }
+                Expr::Function(name, _) => {
+                    let ctx = ok!(ctx.functx.get_mut(&name))?;
+                    value.visit(ctx)?;
+                    expr.visit(ctx)?;
+                }
                 _ => todo!(),
             },
             Expr::Variable(name) => {
