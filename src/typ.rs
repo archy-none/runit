@@ -33,7 +33,7 @@ impl Type {
         }
     }
 
-    fn compile(&self) -> String {
+    pub fn compile(&self) -> String {
         match self {
             Type::Integer => "isize".to_string(),
             Type::String => "String".to_string(),
