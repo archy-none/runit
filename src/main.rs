@@ -5,7 +5,7 @@ fn main() {
     println!("fn main() {}", build().unwrap())
 }
 
-fn build() -> Option<String> {
+fn build() -> Result<String, String> {
     let mut ctx = Context {
         mutenv: IndexMap::new(),
         typenv: IndexMap::new(),
@@ -18,6 +18,8 @@ fn build() -> Option<String> {
     ast.compile(&mut ctx)
 }
 
+pub const SPACE: &str = " ";
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Context {
     mutenv: IndexMap<Name, bool>,
@@ -28,6 +30,7 @@ struct Context {
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]
 enum Expr {
     Let(Box<Expr>, Box<Expr>, Box<Expr>),
+    Operator(String, Vec<Expr>),
     Variable(Name),
     String(String),
     Integer(isize),
@@ -87,7 +90,7 @@ impl Expr {
         }
     }
 
-    fn visit(&self, ctx: &mut Context) -> Option<()> {
+    fn visit(&self, ctx: &mut Context) -> Result<(), String> {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
@@ -99,7 +102,7 @@ impl Expr {
                     value.visit(ctx)?;
                     expr.visit(ctx)?;
                 }
-                _ => return None,
+                _ => return Err("d".to_owned()),
             },
             Expr::Variable(name) => {
                 if let Some(cnt) = ctx.refcnt.get_mut(name) {
@@ -108,10 +111,10 @@ impl Expr {
             }
             _ => {}
         };
-        Some(())
+        Ok(())
     }
 
-    fn infer(&self, ctx: &mut Context) -> Option<Type> {
+    fn infer(&self, ctx: &mut Context) -> Result<Type, String> {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
@@ -120,27 +123,27 @@ impl Expr {
                         if *vartyp == valtyp {
                             ctx.mutenv.insert(name, true);
                         } else {
-                            return None;
+                            return Err("()".to_owned());
                         }
                     } else {
                         ctx.typenv.insert(name, valtyp);
                     }
                     expr.infer(ctx)
                 }
-                _ => return None,
+                _ => return Err("()".to_owned());
             },
-            Expr::Variable(name) => ctx.typenv.get(name).cloned(),
-            Expr::Integer(_) => Some(Type::Integer),
-            Expr::String(_) => Some(Type::String),
+            Expr::Variable(name) => ok!(ctx.typenv.get(name).cloned()),
+            Expr::Integer(_) => Ok(Type::Integer),
+            Expr::String(_) => Ok(Type::String),
         }
     }
 
-    fn parse(source: &str) -> Option<Self> {
+    fn parse(source: &str) -> Result<Self, String> {
         let source = source.trim();
         if let Some(token) = source.strip_prefix("let ") {
-            let (name, token) = token.split_once("=")?;
-            let (value, expr) = token.split_once("in")?;
-            Some(Expr::Let(
+            let (name, token) = ok!(token.split_once("="))?;
+            let (value, expr) = ok!(token.split_once("in"))?;
+            Ok(Expr::Let(
                 Box::new(Expr::parse(name)?),
                 Box::new(Expr::parse(value)?),
                 Box::new(Expr::parse(expr)?),
@@ -149,15 +152,154 @@ impl Expr {
             .strip_prefix("\"")
             .and_then(|token| token.strip_suffix("\""))
         {
-            Some(Expr::String(str.to_string()))
+            Ok(Expr::String(str.to_string()))
         } else if let Ok(name) = source.parse() {
-            Some(Expr::Integer(name))
+            Ok(Expr::Integer(name))
         } else if let Some(name) = Name::new(source) {
-            Some(Expr::Variable(name))
+            Ok(Expr::Variable(name))
         } else {
+            let tokens: Vec<String> = tokenize(source, SPACE.as_ref())?;
+            // Parsing is from right to left because operator is left-associative
+            let binopergen = |n: usize| {
+                let operator = tokens.get(n)?;
+                let lhs = tokens.get(..n)?.join(SPACE);
+                let rhs = tokens.get(n + 1..)?.join(SPACE);
+                Some(match operator.as_str() {
+                    "+" => Op::Add(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "-" => Op::Sub(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "*" => Op::Mul(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "/" => Op::Div(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "%" => Op::Mod(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    ">>" => Op::Shr(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "<<" => Op::Shl(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "==" => Op::Eql(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "!=" => Op::Neq(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "<" => Op::Lt(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    ">" => Op::Gt(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    ">=" => Op::GtEq(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "<=" => Op::LtEq(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "&" => Op::BAnd(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "|" => Op::BOr(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "^" => Op::XOr(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "&&" => Op::LAnd(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    "||" => Op::LOr(Expr::parse(lhs)?, Expr::parse(rhs)?),
+                    ":" => Op::Cast(Expr::parse(lhs)?, Type::parse(rhs)?),
+                    _ => return None,
+                })
+            };
+            let unaryopergen = || {
+                let op = tokens.first()?.trim();
+                let token = tokens.get(1..)?.join(SPACE);
+                Some(match op {
+                    "~" => Op::BNot(Expr::parse(token)?),
+                    "!" => Op::LNot(Expr::parse(token)?),
+                    "-" => {
+                        let token = Expr::parse(token)?;
+                        Op::Sub(
+                            Expr::Operator(Box::new(Op::Sub(token.clone(), token.clone()))),
+                            token,
+                        )
+                    }
+                    _ => return None,
+                })
+            };
+            let suffixopergen = || {
+                let op = tokens.last()?.trim();
+                let token = tokens.get(..tokens.len() - 1)?.join(SPACE);
+                Some(match op {
+                    "?" => Op::NullCheck(Expr::parse(token)?),
+                    "!" => Op::Nullable(Type::parse(token)?),
+                    _ => return None,
+                })
+            };
+            for i in 2..tokens.len() {
+                if let Some(op) = binopergen(tokens.len().checked_sub(i)?) {
+                    return Some(op);
+                }
+            }
+            if let Some(op) = suffixopergen() {
+                return Some(op);
+            }
+            if let Some(op) = unaryopergen() {
+                return Some(op);
+            }
             None
         }
     }
+}
+
+pub fn tokenize(input: &str, delimiter: &str) -> Result<Vec<String>, String> {
+    let mut tokens: Vec<String> = Vec::new();
+    let mut current_token = String::new();
+    let mut in_parentheses: usize = 0;
+    let mut in_quote = false;
+    let mut is_escape = false;
+
+    let chars = input.chars().collect::<Vec<char>>();
+    let mut index = 0;
+
+    while index < chars.len() {
+        let c = chars[index];
+        if is_escape {
+            current_token.push(c);
+            is_escape = false;
+        } else {
+            match c {
+                '(' | '{' | '[' if !in_quote => {
+                    current_token.push(c);
+                    in_parentheses += 1;
+                }
+                ')' | '}' | ']' if !in_quote => {
+                    current_token.push(c);
+                    in_parentheses.checked_sub(1).map(|x| in_parentheses = x);
+                }
+                '"' | '\'' | '`' => {
+                    in_quote = !in_quote;
+                    current_token.push(c);
+                }
+                '\\' if in_quote => {
+                    current_token.push(c);
+                    is_escape = true;
+                }
+                _ => {
+                    if input.get(index..index + delimiter.len()) == Some(delimiter) {
+                        if in_parentheses != 0 || in_quote || is_escape {
+                            current_token.push_str(delimiter);
+                        } else if !current_token.is_empty() {
+                            tokens.push(current_token.clone());
+                            current_token.clear();
+                        }
+                        index += delimiter.len();
+                        continue;
+                    } else {
+                        current_token.push(c);
+                    }
+                }
+            }
+        }
+        index += 1
+    }
+
+    // Syntax error check
+    if is_escape || in_quote || in_parentheses != 0 {
+        return Err("nested structure is not closed".to_owned());
+    }
+    if !current_token.is_empty() {
+        tokens.push(current_token.clone());
+        current_token.clear();
+    }
+    Ok(tokens)
+}
+
+#[macro_export]
+macro_rules! ok {
+    ($v: expr) => {
+        if let Some(v) = $v {
+            Ok(v)
+        } else {
+            Err("invalid token".to_string())
+        }
+    };
 }
 
 mod name {
