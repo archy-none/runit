@@ -33,7 +33,7 @@ struct Context {
 
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]
 enum Expr {
-    Proto(Name, Type),
+    Proto(Name, Type, Box<Expr>),
     Let(Box<Expr>, Box<Expr>, Box<Expr>),
     Operator(String, Vec<Expr>),
     Function(Name, Vec<Expr>),
@@ -362,6 +362,14 @@ impl Expr {
             Ok(Expr::Let(
                 Box::new(Expr::parse(name)?),
                 Box::new(Expr::parse(value)?),
+                Box::new(Expr::parse(expr)?),
+            ))
+        } else if let Some(token) = source.strip_prefix("proto ") {
+            let (name, token) = ok!(token.split_once("="))?;
+            let (value, expr) = ok!(token.split_once("in"))?;
+            Ok(Expr::Proto(
+                ok!(Name::new(name))?,
+                Type::parse(value)?,
                 Box::new(Expr::parse(expr)?),
             ))
         } else {
