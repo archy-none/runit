@@ -9,6 +9,7 @@ fn build() -> Result<String, String> {
     let mut ctx = Context {
         mutenv: IndexMap::new(),
         typenv: IndexMap::new(),
+        typexp: IndexMap::new(),
         refcnt: IndexMap::new(),
     };
     let code = include_str!("../example.prs");
@@ -24,6 +25,7 @@ pub const SPACE: &str = " ";
 struct Context {
     mutenv: IndexMap<Name, bool>,
     typenv: IndexMap<Name, Type>,
+    typexp: IndexMap<Expr, Type>,
     refcnt: IndexMap<Name, usize>,
 }
 
@@ -120,7 +122,7 @@ impl Expr {
     }
 
     fn infer(&self, ctx: &mut Context) -> Result<Type, String> {
-        Ok(match self {
+        let result = match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
                     let valtyp = value.infer(ctx)?;
@@ -153,7 +155,9 @@ impl Expr {
                     _ => todo!(),
                 }
             }
-        })
+        };
+        ctx.typexp.insert(self.to_owned(), result);
+        Ok(result)
     }
 
     fn parse(source: &str) -> Result<Self, String> {
