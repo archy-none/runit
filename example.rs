@@ -4,11 +4,14 @@ fn main() {
 			let r#_c = r#_a;
 			r#_b + r#_c
 		}
-		let r#_n = r#_add(5isize + 2isize, r#_add(3isize, 3isize));
-		let mut r#_c = String::from("Hello! ");
-		let r#_d = r#_c.clone();
-		r#_c = r#_c.clone().repeat(r#_n as usize);
-		r#_c
+		fn r#_main(r#_a: String, r#_b: isize) -> String {
+			let r#_n = r#_add(1isize + 2isize, r#_add(r#_b, 3isize));
+			let mut r#_c = String::from("Hello, ");
+			let r#_d = r#_c.clone() + &r#_a + &String::from("world");
+			r#_c = r#_d.repeat(r#_n as usize);
+			r#_c
+		}
+		r#_main(String::from("world"), 3isize)
 	});
 }
 
