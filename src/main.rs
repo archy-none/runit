@@ -385,20 +385,20 @@ impl Expr {
     fn parse(source: &str) -> Result<Self, String> {
         let source = source.trim();
         if let Some(token) = source.strip_prefix("let ") {
-            let (name, token) = ok!(token.split_once("="))?;
-            let (value, expr) = ok!(token.split_once("in"))?;
+            let (name, token) = once!(token, "=")?;
+            let (value, expr) = once!(&token, "in")?;
             Ok(Expr::Let(
                 Box::new(Expr::parse(name.trim())?),
-                Box::new(Expr::parse(value)?),
-                Box::new(Expr::parse(expr)?),
+                Box::new(Expr::parse(&value)?),
+                Box::new(Expr::parse(&expr)?),
             ))
         } else if let Some(token) = source.strip_prefix("proto ") {
-            let (name, token) = ok!(token.split_once("="))?;
-            let (value, expr) = ok!(token.split_once("in"))?;
+            let (name, token) = once!(token, "=")?;
+            let (value, expr) = once!(&token, "in")?;
             Ok(Expr::Proto(
                 ok!(Name::new(name.trim()))?,
-                Type::parse(value)?,
-                Box::new(Expr::parse(expr)?),
+                Type::parse(&value)?,
+                Box::new(Expr::parse(&expr)?),
             ))
         } else {
             let tokens: Vec<String> = tokenize(source, SPACE.as_ref())?;
