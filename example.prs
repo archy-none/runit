@@ -7,8 +7,8 @@ let add a, b = (
 let main a, b = (
     let n = add 1 + 2, (add b, 3) in
     let c = "Hello, " in
-    let d = c + a + "world" in
-    let c = d * n in
-    c
+    let d = c + a + "! " in
+    let e = c + d in
+    e + d * n
 ) in
 main "world", 3
