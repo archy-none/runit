@@ -49,7 +49,7 @@ impl Type {
 }
 
 impl Expr {
-    fn compile(&self, ctx: &mut Context) -> Option<String> {
+    fn compile(&self, ctx: &mut Context) -> Result<String, String> {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
@@ -69,24 +69,29 @@ impl Expr {
                         .map(|line| format!("\t{line}"))
                         .collect::<Vec<_>>()
                         .join("\n");
-                    Some(format!("{{\n\t{statement}{name} = {value};\n{expr};\n}}"))
+                    Ok(format!("{{\n\t{statement}{name} = {value};\n{expr};\n}}"))
                 }
-                _ => None,
+                _ => todo!(),
             },
             Expr::Variable(name) => {
                 if let Some(cnt) = ctx.refcnt.get_mut(name) {
                     if *cnt == 1 {
-                        Some(name.to_string())
+                        Ok(name.to_string())
                     } else {
                         *cnt -= 1;
-                        Some(format!("{name}.clone()"))
+                        Ok(format!("{name}.clone()"))
                     }
                 } else {
-                    Some(name.to_string())
+                    Ok(name.to_string())
                 }
             }
-            Expr::String(value) => Some(format!("String::from(\"{value}\")")),
-            Expr::Integer(value) => Some(format!("{value}usize")),
+            Expr::Operator(op, terms) => match terms.as_slice() {
+                [lhs, rhs] => Ok(format!("{} {op} {}", lhs.compile(ctx)?, rhs.compile(ctx)?)),
+                [term] => Ok(format!("{op}{}", term.compile(ctx)?)),
+                _ => todo!(),
+            },
+            Expr::String(value) => Ok(format!("String::from(\"{value}\")")),
+            Expr::Integer(value) => Ok(format!("{value}usize")),
         }
     }
 
@@ -102,7 +107,7 @@ impl Expr {
                     value.visit(ctx)?;
                     expr.visit(ctx)?;
                 }
-                _ => return Err("d".to_owned()),
+                _ => todo!(),
             },
             Expr::Variable(name) => {
                 if let Some(cnt) = ctx.refcnt.get_mut(name) {
@@ -130,7 +135,7 @@ impl Expr {
                     }
                     expr.infer(ctx)
                 }
-                _ => return Err("()".to_owned());
+                _ => return Err("invalid binding".to_owned()),
             },
             Expr::Variable(name) => ok!(ctx.typenv.get(name).cloned()),
             Expr::Integer(_) => Ok(Type::Integer),
@@ -159,71 +164,35 @@ impl Expr {
             Ok(Expr::Variable(name))
         } else {
             let tokens: Vec<String> = tokenize(source, SPACE.as_ref())?;
-            // Parsing is from right to left because operator is left-associative
             let binopergen = |n: usize| {
-                let operator = tokens.get(n)?;
-                let lhs = tokens.get(..n)?.join(SPACE);
-                let rhs = tokens.get(n + 1..)?.join(SPACE);
-                Some(match operator.as_str() {
-                    "+" => Op::Add(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "-" => Op::Sub(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "*" => Op::Mul(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "/" => Op::Div(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "%" => Op::Mod(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    ">>" => Op::Shr(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "<<" => Op::Shl(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "==" => Op::Eql(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "!=" => Op::Neq(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "<" => Op::Lt(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    ">" => Op::Gt(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    ">=" => Op::GtEq(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "<=" => Op::LtEq(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "&" => Op::BAnd(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "|" => Op::BOr(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "^" => Op::XOr(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "&&" => Op::LAnd(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    "||" => Op::LOr(Expr::parse(lhs)?, Expr::parse(rhs)?),
-                    ":" => Op::Cast(Expr::parse(lhs)?, Type::parse(rhs)?),
-                    _ => return None,
+                let op = ok!(tokens.get(n))?;
+                let lhs = &ok!(tokens.get(..n))?.join(SPACE);
+                let rhs = &ok!(tokens.get(n + 1..))?.join(SPACE);
+                let terms = vec![Expr::parse(lhs)?, Expr::parse(rhs)?];
+                Ok(match op.as_str() {
+                    "+" | "-" | "*" | "/" | "**" | "//" | "==" | "!=" | "<" | ">" | "<=" | ">=" => {
+                        Expr::Operator(op.to_owned(), terms)
+                    }
+                    _ => return Err(format!("invalid binary operator: {op}")),
                 })
             };
             let unaryopergen = || {
-                let op = tokens.first()?.trim();
-                let token = tokens.get(1..)?.join(SPACE);
-                Some(match op {
-                    "~" => Op::BNot(Expr::parse(token)?),
-                    "!" => Op::LNot(Expr::parse(token)?),
-                    "-" => {
-                        let token = Expr::parse(token)?;
-                        Op::Sub(
-                            Expr::Operator(Box::new(Op::Sub(token.clone(), token.clone()))),
-                            token,
-                        )
-                    }
-                    _ => return None,
-                })
-            };
-            let suffixopergen = || {
-                let op = tokens.last()?.trim();
-                let token = tokens.get(..tokens.len() - 1)?.join(SPACE);
-                Some(match op {
-                    "?" => Op::NullCheck(Expr::parse(token)?),
-                    "!" => Op::Nullable(Type::parse(token)?),
-                    _ => return None,
+                let op = ok!(tokens.first())?.trim();
+                let token = Expr::parse(&ok!(tokens.get(1..))?.join(SPACE))?;
+                Ok(match op {
+                    "-" | "!" => Expr::Operator(op.to_owned(), vec![token]),
+                    _ => return Err(format!("invalid unary operator: {op}")),
                 })
             };
             for i in 2..tokens.len() {
-                if let Some(op) = binopergen(tokens.len().checked_sub(i)?) {
-                    return Some(op);
+                if let Ok(op) = ok!(tokens.len().checked_sub(i)).and_then(binopergen) {
+                    return Ok(op);
                 }
             }
-            if let Some(op) = suffixopergen() {
-                return Some(op);
+            if let Ok(op) = unaryopergen() {
+                return Ok(op);
             }
-            if let Some(op) = unaryopergen() {
-                return Some(op);
-            }
-            None
+            Err(format!("unknown expression: {source}"))
         }
     }
 }
