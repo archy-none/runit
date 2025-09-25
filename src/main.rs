@@ -246,6 +246,7 @@ impl Expr {
     }
 
     fn infer(&self, ctx: &mut Context) -> Result<Type, String> {
+        dbg!(&ctx);
         let result = match self {
             Expr::Proto(name, typ, expr) => {
                 ctx.typenv.insert(name.clone(), typ.clone());
