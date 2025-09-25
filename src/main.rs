@@ -7,6 +7,7 @@ fn main() {
 
 fn build() -> Option<String> {
     let mut ctx = Context {
+        mutenv: IndexMap::new(),
         typenv: IndexMap::new(),
         refcnt: IndexMap::new(),
     };
@@ -19,6 +20,7 @@ fn build() -> Option<String> {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Context {
+    mutenv: IndexMap<Name, bool>,
     typenv: IndexMap<Name, Type>,
     refcnt: IndexMap<Name, usize>,
 }
@@ -103,8 +105,16 @@ impl Expr {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
-                    let vartyp = value.infer(ctx)?;
-                    ctx.typenv.insert(name, vartyp);
+                    let valtyp = value.infer(ctx)?;
+                    if let Some(vartyp) = ctx.typenv.get(&name) {
+                        if *vartyp == valtyp {
+                            ctx.mutenv.insert(name, false);
+                        } else {
+                            return None;
+                        }
+                    } else {
+                        ctx.typenv.insert(name, valtyp);
+                    }
                     expr.infer(ctx)
                 }
                 _ => return None,
