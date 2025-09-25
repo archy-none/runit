@@ -74,7 +74,7 @@ impl Expr {
                         }
                     }
                     let args = args.join(", ");
-                    format!("fn {name}({args}) -> ret {{\n\t{value}\n}}\n")
+                    format!("fn {name}({args}) -> {ret} {{\n\t{value}\n}}\n")
                 }
                 _ => todo!(),
             } + &expr
