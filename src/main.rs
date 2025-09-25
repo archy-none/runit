@@ -133,6 +133,54 @@ impl Expr {
                     }
                     _ => todo!(),
                 },
+                "==" => match terms.as_slice() {
+                    [lhs, rhs] => {
+                        let lhs = lhs.compile(ctx)?;
+                        let rhs = rhs.compile(ctx)?;
+                        Ok(format!("{lhs} {op} {rhs}"))
+                    }
+                    _ => todo!(),
+                },
+                "!=" => match terms.as_slice() {
+                    [lhs, rhs] => {
+                        let lhs = lhs.compile(ctx)?;
+                        let rhs = rhs.compile(ctx)?;
+                        Ok(format!("{lhs} {op} {rhs}"))
+                    }
+                    _ => todo!(),
+                },
+                "<" => match terms.as_slice() {
+                    [lhs, rhs] => {
+                        let lhs = lhs.compile(ctx)?;
+                        let rhs = rhs.compile(ctx)?;
+                        Ok(format!("{lhs} {op} {rhs}"))
+                    }
+                    _ => todo!(),
+                },
+                ">" => match terms.as_slice() {
+                    [lhs, rhs] => {
+                        let lhs = lhs.compile(ctx)?;
+                        let rhs = rhs.compile(ctx)?;
+                        Ok(format!("{lhs} {op} {rhs}"))
+                    }
+                    _ => todo!(),
+                },
+                "<=" => match terms.as_slice() {
+                    [lhs, rhs] => {
+                        let lhs = lhs.compile(ctx)?;
+                        let rhs = rhs.compile(ctx)?;
+                        Ok(format!("{lhs} {op} {rhs}"))
+                    }
+                    _ => todo!(),
+                },
+                ">=" => match terms.as_slice() {
+                    [lhs, rhs] => {
+                        let lhs = lhs.compile(ctx)?;
+                        let rhs = rhs.compile(ctx)?;
+                        Ok(format!("{lhs} {op} {rhs}"))
+                    }
+                    _ => todo!(),
+                },
                 _ => todo!(),
             },
             Expr::String(value) => Ok(format!("String::from(\"{value}\")")),
