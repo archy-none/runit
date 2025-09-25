@@ -66,11 +66,11 @@ impl Expr {
                         return Err(format!("can't call to non-function object: {name}"));
                     };
                     let value = value.compile(ctx)?;
-
+                    let ret = ret.compile();
                     let mut args = vec![];
-                    for param in params {
+                    for (param, anno) in params.iter().zip(annos) {
                         if let Expr::Variable(name) = param {
-                            args.push(name.to_string());
+                            args.push(format!("{name}: {}", anno.compile()));
                         }
                     }
                     let args = args.join(", ");
