@@ -7,7 +7,7 @@ mod typ;
 use typ::Type;
 
 fn main() {
-    println!("fn main() {}", build().unwrap())
+    println!("fn main() {{ {} }}", build().unwrap())
 }
 
 fn build() -> Result<String, String> {
@@ -78,12 +78,7 @@ impl Expr {
                     format!("fn {name}({args}) -> {ret} {{\n\t{value}\n}}\n")
                 }
                 _ => todo!(),
-            } + &expr
-                .compile(ctx)?
-                .lines()
-                .map(|line| format!("\t{line}"))
-                .collect::<Vec<_>>()
-                .join("\n")),
+            } + &expr.compile(ctx)?),
             Expr::Variable(name) => {
                 if let Some(cnt) = ctx.refcnt.get_mut(name) {
                     if *cnt == 1 {
@@ -207,7 +202,7 @@ impl Expr {
                 _ => todo!(),
             },
             Expr::Kind(_) => todo!(),
-            Expr::Proto(_, _, _) => Ok(String::new()),
+            Expr::Proto(_, _, expr) => expr.compile(ctx),
         }
     }
 
@@ -246,7 +241,6 @@ impl Expr {
     }
 
     fn infer(&self, ctx: &mut Context) -> Result<Type, String> {
-        dbg!(&ctx);
         let result = match self {
             Expr::Proto(name, typ, expr) => {
                 ctx.typenv.insert(name.clone(), typ.clone());
@@ -376,7 +370,7 @@ impl Expr {
             let (name, token) = ok!(token.split_once("="))?;
             let (value, expr) = ok!(token.split_once("in"))?;
             Ok(Expr::Let(
-                Box::new(Expr::parse(name)?),
+                Box::new(Expr::parse(name.trim())?),
                 Box::new(Expr::parse(value)?),
                 Box::new(Expr::parse(expr)?),
             ))
@@ -384,7 +378,7 @@ impl Expr {
             let (name, token) = ok!(token.split_once("="))?;
             let (value, expr) = ok!(token.split_once("in"))?;
             Ok(Expr::Proto(
-                ok!(Name::new(name))?,
+                ok!(Name::new(name.trim()))?,
                 Type::parse(value)?,
                 Box::new(Expr::parse(expr)?),
             ))
