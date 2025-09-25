@@ -1,3 +1,1 @@
-let a = "Hello" + "World" in
-let b = 10 / 2 in
-a
+a 1, 3
