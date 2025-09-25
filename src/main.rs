@@ -43,6 +43,7 @@ enum Expr {
 enum Type {
     String,
     Integer,
+    Bool,
 }
 
 impl Type {
@@ -96,6 +97,7 @@ impl Expr {
                         match ok!(ctx.typexp.get(self))? {
                             Type::Integer => Ok(format!("{lhs} + {rhs}")),
                             Type::String => Ok(format!("{lhs} + &{rhs}")),
+                            Type::Bool => Ok(format!("{lhs} || {rhs}")),
                         }
                     }
                     _ => todo!(),
@@ -107,6 +109,7 @@ impl Expr {
                         match ok!(ctx.typexp.get(self))? {
                             Type::Integer => Ok(format!("{lhs} - {rhs}")),
                             Type::String => Ok(format!("{lhs}.replace({rhs}, \"\")")),
+                            _ => todo!(),
                         }
                     }
                     _ => todo!(),
@@ -118,6 +121,7 @@ impl Expr {
                         match ok!(ctx.typexp.get(self))? {
                             Type::Integer => Ok(format!("{lhs} * {rhs}")),
                             Type::String => Ok(format!("{lhs}.repeat({rhs})")),
+                            Type::Bool => Ok(format!("{lhs} && {rhs}")),
                         }
                     }
                     _ => todo!(),
@@ -262,29 +266,27 @@ impl Expr {
                         _ => return err,
                     },
                     "==" => match typs.as_slice() {
-                        [Type::Integer, Type::Integer] => Type::Integer,
-                        [Type::String, Type::String] => Type::String,
+                        [lhs, rhs] if lhs == rhs => Type::Bool,
                         _ => return err,
                     },
                     "!=" => match typs.as_slice() {
-                        [Type::Integer, Type::Integer] => Type::Integer,
-                        [Type::String, Type::String] => Type::String,
+                        [lhs, rhs] if lhs == rhs => Type::Bool,
                         _ => return err,
                     },
                     "<" => match typs.as_slice() {
-                        [Type::Integer, Type::Integer] => Type::Integer,
+                        [lhs, rhs] if lhs == rhs => Type::Bool,
                         _ => return err,
                     },
                     ">" => match typs.as_slice() {
-                        [Type::Integer, Type::Integer] => Type::Integer,
+                        [lhs, rhs] if lhs == rhs => Type::Bool,
                         _ => return err,
                     },
                     "<=" => match typs.as_slice() {
-                        [Type::Integer, Type::Integer] => Type::Integer,
+                        [lhs, rhs] if lhs == rhs => Type::Bool,
                         _ => return err,
                     },
                     ">=" => match typs.as_slice() {
-                        [Type::Integer, Type::Integer] => Type::Integer,
+                        [lhs, rhs] if lhs == rhs => Type::Bool,
                         _ => return err,
                     },
                     _ => todo!(),
