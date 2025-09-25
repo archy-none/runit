@@ -1,5 +1,5 @@
 fn main() {
-	let mut r#_a = String::from("Hello" + "Be");
+	let mut r#_a = String::from("Hello") + String::from("Be");
 	{
 		let r#_b = 100usize + 2usize;
 		{
