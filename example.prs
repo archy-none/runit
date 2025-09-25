@@ -1,4 +1,4 @@
-let a = "Hello" in
+let a = "Hello" + "Be" in
 let b = 100 + 2 in
 let a = "Bye" in
 let c = a in
