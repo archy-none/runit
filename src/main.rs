@@ -16,6 +16,7 @@ fn build() -> Result<String, String> {
     let ast = Expr::parse(code)?;
     ast.infer(&mut ctx)?;
     ast.visit(&mut ctx)?;
+    dbg!(&ctx);
     ast.compile(&mut ctx)
 }
 
