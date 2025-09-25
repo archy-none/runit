@@ -153,6 +153,7 @@ impl Expr {
                 match op.as_str() {
                     "+" => match typs.as_slice() {
                         [Type::Integer, Type::Integer] => Type::Integer,
+                        [Type::String, Type::String] => Type::String,
                         _ => return err,
                     },
                     _ => todo!(),
