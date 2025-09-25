@@ -8,8 +8,8 @@ use typ::Type;
 
 fn main() {
     println!(
-        "fn main() {{ println!(\"{{}}\", {{ {} }}) }}",
-        indent!(build().unwrap())
+        "fn main() {{\n\tprintln!(\"{{}}\", {{\n{}\n\t}});\n}}\n",
+        indent!(indent!(build().unwrap()))
     );
 }
 
