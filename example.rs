@@ -5,8 +5,8 @@ fn main() {
 		{
 			r#_a = String::from("Bye");
 			{
-				let r#_c = r#_a;
-				r#_b;
+				let r#_c = r#_a.clone();
+				r#_a;
 			};
 		};
 	};
