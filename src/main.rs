@@ -9,6 +9,7 @@ fn build() -> Result<String, String> {
     let mut ctx = Context {
         mutenv: IndexMap::new(),
         typenv: IndexMap::new(),
+        typexp: IndexMap::new(),
         refcnt: IndexMap::new(),
     };
     let code = include_str!("../example.prs");
@@ -24,6 +25,7 @@ pub const SPACE: &str = " ";
 struct Context {
     mutenv: IndexMap<Name, bool>,
     typenv: IndexMap<Name, Type>,
+    typexp: IndexMap<Expr, Rtpe>,
     refcnt: IndexMap<Name, usize>,
 }
 
