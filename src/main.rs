@@ -249,6 +249,7 @@ impl Expr {
                     "+" => match typs.as_slice() {
                         [Type::Integer, Type::Integer] => Type::Integer,
                         [Type::String, Type::String] => Type::String,
+                        [Type::Bool, Type::Bool] => Type::Bool,
                         _ => return err,
                     },
                     "-" => match typs.as_slice() {
@@ -259,6 +260,7 @@ impl Expr {
                     "*" => match typs.as_slice() {
                         [Type::Integer, Type::Integer] => Type::Integer,
                         [Type::String, Type::String] => Type::String,
+                        [Type::Bool, Type::Bool] => Type::Bool,
                         _ => return err,
                     },
                     "/" => match typs.as_slice() {
