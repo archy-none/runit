@@ -34,7 +34,7 @@ struct Context {
 enum Expr {
     Let(Box<Expr>, Box<Expr>, Box<Expr>),
     Operator(String, Vec<Expr>),
-    Function(String, Vec<Expr>),
+    Function(Name, Vec<Expr>),
     Variable(Name),
     String(String),
     Integer(isize),
@@ -46,6 +46,7 @@ enum Type {
     String,
     Integer,
     Bool,
+    Function(Vec<Type>, Box<Type>),
 }
 
 impl Type {
@@ -110,6 +111,7 @@ impl Expr {
                             Type::Integer => Ok(format!("{lhs} + {rhs}")),
                             Type::String => Ok(format!("{lhs} + &{rhs}")),
                             Type::Bool => Ok(format!("{lhs} || {rhs}")),
+                            _ => todo!(),
                         }
                     }
                     _ => todo!(),
@@ -134,6 +136,7 @@ impl Expr {
                             Type::Integer => Ok(format!("{lhs} * {rhs}")),
                             Type::String => Ok(format!("{lhs}.repeat({rhs} as usize)")),
                             Type::Bool => Ok(format!("{lhs} && {rhs}")),
+                            _ => todo!(),
                         }
                     }
                     _ => todo!(),
@@ -309,6 +312,20 @@ impl Expr {
                     },
                     _ => todo!(),
                 }
+            }
+            Expr::Function(name, args) => {
+                let Type::Function(params, ret) = ok!(ctx.typenv.get(name))?.clone() else {
+                    return Err(format!("can't call to non-function object: {name}"));
+                };
+                for (arg, param) in args.iter().zip(params) {
+                    let arg = arg.infer(ctx)?;
+                    if arg != param {
+                        return Err(format!(
+                            "passed argument did not match to type that's function expects: {arg:?} != {param:?}"
+                        ));
+                    }
+                }
+                *ret.clone()
             }
         };
         ctx.typexp.insert(self.to_owned(), result.clone());
