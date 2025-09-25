@@ -1,5 +1,3 @@
-let a = "Hello" + "World" in
-let b = 10 / 2 in
-let a = a * b in
-let c = a in
-a
+proto inc = Int Int in
+let inc n = n + 1 in
+inc 5
