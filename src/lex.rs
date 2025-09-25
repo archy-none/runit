@@ -125,3 +125,15 @@ macro_rules! indent {
             .join("\n")
     };
 }
+
+#[macro_export]
+macro_rules! once {
+    ($v: expr, $delimiter: expr) => {{
+        let v = tokenize($v, $delimiter)?;
+        if v.len() >= 2 {
+            Ok((v[0].clone(), v[1..].join($delimiter)))
+        } else {
+            Err("unexpected token".to_string())
+        }
+    }};
+}
