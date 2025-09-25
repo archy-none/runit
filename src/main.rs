@@ -19,7 +19,7 @@ fn build() -> Result<String, String> {
     let ast = Expr::parse(code)?;
     ast.infer(&mut ctx)?;
     ast.visit(&mut ctx)?;
-    //   dbg!(&ctx);
+    dbg!(&ctx);
     ast.compile(&mut ctx)
 }
 
@@ -267,7 +267,7 @@ impl Expr {
                     expr.infer(ctx)?
                 }
                 Expr::Function(name, params) => {
-                    let mut func_ctx = Context::default();
+                    let mut func_ctx = ctx.clone();
                     let Type::Function(annos, ret) = ok!(ctx.typenv.get(&name))?.clone() else {
                         return Err(format!(
                             "there's no prototype declaration so can't define function: {name}"
