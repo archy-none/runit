@@ -25,7 +25,7 @@ pub const SPACE: &str = " ";
 struct Context {
     mutenv: IndexMap<Name, bool>,
     typenv: IndexMap<Name, Type>,
-    typexp: IndexMap<Expr, Rtpe>,
+    typexp: IndexMap<Expr, Type>,
     refcnt: IndexMap<Name, usize>,
 }
 
@@ -142,6 +142,17 @@ impl Expr {
             Expr::Variable(name) => ok!(ctx.typenv.get(name).cloned()),
             Expr::Integer(_) => Ok(Type::Integer),
             Expr::String(_) => Ok(Type::String),
+            Expr::Operator(op, terms) => {
+                let typs = ok!(terms
+                    .iter()
+                    .map(|x| ctx.typexp.get(x))
+                    .collect::<Option<Vec<_>>>())?
+                .as_slice();
+                match op.as_str() {
+                    "+" => match typs {},
+                    _ => todo!(),
+                }
+            }
         }
     }
 
