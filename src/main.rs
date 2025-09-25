@@ -49,15 +49,21 @@ impl Expr {
     fn compile(&self, ctx: &mut Context) -> Option<String> {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
-                Expr::Variable(name) => Some(format!(
-                    "{{\n\tlet {name} = {};\n{};\n}}",
-                    value.compile(ctx)?,
-                    expr.compile(ctx)?
+                Expr::Variable(name) => {
+                    let value = value.compile(ctx)?;
+                    let expr = expr
+                        .compile(ctx)?
                         .lines()
                         .map(|line| format!("\t{line}"))
                         .collect::<Vec<_>>()
-                        .join("\n")
-                )),
+                        .join("\n");
+                    let statement = if let Some(is_initial) = ctx.mutenv.get(&name) {
+                        if *is_initial { "let mut" } else { "" }
+                    } else {
+                        "let"
+                    };
+                    Some(format!("{{\n\t{statement} {name} = {value};\n{expr};\n}}"))
+                }
                 _ => None,
             },
             Expr::Variable(name) => {
