@@ -34,6 +34,7 @@ struct Context {
 enum Expr {
     Let(Box<Expr>, Box<Expr>, Box<Expr>),
     Operator(String, Vec<Expr>),
+    Function(String, Vec<Expr>),
     Variable(Name),
     String(String),
     Integer(isize),
@@ -90,6 +91,13 @@ impl Expr {
                     Ok(name.to_string())
                 }
             }
+            Expr::Function(name, args) => Ok(format!(
+                "{name}({})",
+                args.iter()
+                    .map(|x| x.compile(ctx))
+                    .collect::<Result<Vec<String>, String>>()?
+                    .join(", ")
+            )),
             Expr::String(value) => Ok(format!("String::from(\"{value}\")")),
             Expr::Integer(value) => Ok(format!("{value}isize")),
             Expr::Bool(value) => Ok(format!("{value}")),
