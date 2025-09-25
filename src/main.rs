@@ -50,6 +50,16 @@ impl Expr {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
+                    let statement = if let Some(is_initial) = ctx.mutenv.get_mut(&name) {
+                        if *is_initial {
+                            *is_initial = false;
+                            "let mut "
+                        } else {
+                            ""
+                        }
+                    } else {
+                        "let "
+                    };
                     let value = value.compile(ctx)?;
                     let expr = expr
                         .compile(ctx)?
@@ -57,12 +67,7 @@ impl Expr {
                         .map(|line| format!("\t{line}"))
                         .collect::<Vec<_>>()
                         .join("\n");
-                    let statement = if let Some(is_initial) = ctx.mutenv.get(&name) {
-                        if *is_initial { "let mut" } else { "" }
-                    } else {
-                        "let"
-                    };
-                    Some(format!("{{\n\t{statement} {name} = {value};\n{expr};\n}}"))
+                    Some(format!("{{\n\t{statement}{name} = {value};\n{expr};\n}}"))
                 }
                 _ => None,
             },
@@ -114,7 +119,7 @@ impl Expr {
                     let valtyp = value.infer(ctx)?;
                     if let Some(vartyp) = ctx.typenv.get(&name) {
                         if *vartyp == valtyp {
-                            ctx.mutenv.insert(name, false);
+                            ctx.mutenv.insert(name, true);
                         } else {
                             return None;
                         }
