@@ -262,7 +262,7 @@ impl Expr {
                     },
                     "*" => match typs.as_slice() {
                         [Type::Integer, Type::Integer] => Type::Integer,
-                        [Type::String, Type::String] => Type::String,
+                        [Type::String, Type::Integer] => Type::String,
                         [Type::Bool, Type::Bool] => Type::Bool,
                         _ => return err,
                     },
