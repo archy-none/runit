@@ -1,3 +1,7 @@
 proto add = Int, Int -> Int in
-let add a, b = (let c = a in a + c) in
-add 5 + 2, (add 3, 3)
+let add a, b = (let c = a in b + c) in
+let n = add 5 + 2, (add 3, 3) in
+let c = "Hello! " in
+let d = c in
+let c = c * n in
+c
