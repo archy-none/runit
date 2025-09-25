@@ -122,7 +122,7 @@ impl Expr {
     }
 
     fn infer(&self, ctx: &mut Context) -> Result<Type, String> {
-        match self {
+        let result = match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
                     let valtyp = value.infer(ctx)?;
@@ -137,13 +137,13 @@ impl Expr {
                     } else {
                         ctx.typenv.insert(name, valtyp);
                     }
-                    expr.infer(ctx)
+                    expr.infer(ctx)?
                 }
                 _ => return Err("invalid binding".to_owned()),
             },
-            Expr::Variable(name) => ok!(ctx.typenv.get(name).cloned()),
-            Expr::Integer(_) => Ok(Type::Integer),
-            Expr::String(_) => Ok(Type::String),
+            Expr::Variable(name) => ok!(ctx.typenv.get(name).cloned())?,
+            Expr::Integer(_) => Type::Integer,
+            Expr::String(_) => Type::String,
             Expr::Operator(op, terms) => {
                 let typs = ok!(terms
                     .iter()
@@ -155,7 +155,9 @@ impl Expr {
                     _ => todo!(),
                 }
             }
-        }
+        };
+        ctx.typexp.insert(self.to_owned(), result);
+        Ok(result)
     }
 
     fn parse(source: &str) -> Result<Self, String> {
