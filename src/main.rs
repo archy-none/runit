@@ -170,7 +170,7 @@ impl Expr {
                 let rhs = &ok!(tokens.get(n + 1..))?.join(SPACE);
                 let terms = vec![Expr::parse(lhs)?, Expr::parse(rhs)?];
                 Ok(match op.as_str() {
-                    "+" | "-" | "*" | "/" | "**" | "//" | "==" | "!=" | "<" | ">" | "<=" | ">=" => {
+                    "+" | "-" | "*" | "/" | "==" | "!=" | "<" | ">" | "<=" | ">=" => {
                         Expr::Operator(op.to_owned(), terms)
                     }
                     _ => return Err(format!("invalid binary operator: {op}")),
