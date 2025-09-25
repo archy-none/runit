@@ -20,9 +20,8 @@ impl Type {
             "Str" => Ok(Type::String),
             "Bool" => Ok(Type::Bool),
             _ => {
-                let tokens: Vec<String> = tokenize(source, SPACE.as_ref())?;
-                let ret = ok!(tokens.first())?.trim();
-                let args: Vec<String> = tokenize(&ok!(tokens.get(1..))?.join(SPACE), ",")?;
+                let (source, ret) = ok!(source.split_once("->"))?;
+                let args: Vec<String> = tokenize(source, ",")?;
                 if args.len() == 0 {
                     return Err(String::new());
                 }
