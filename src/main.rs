@@ -50,15 +50,14 @@ impl Expr {
         match self {
             Expr::Let(name, value, expr) => match *name.clone() {
                 Expr::Variable(name) => {
-                    let statement = if let Some(is_initial) = ctx.mutenv.get_mut(&name) {
+                    let mut statement = String::new();
+                    if let Some(is_initial) = ctx.mutenv.get_mut(&name) {
                         if *is_initial {
                             *is_initial = false;
-                            "let mut "
-                        } else {
-                            ""
+                            statement.push_str("let mut ");
                         }
                     } else {
-                        "let "
+                        statement.push_str("let ");
                     };
                     let value = value.compile(ctx)?;
                     let expr = expr
