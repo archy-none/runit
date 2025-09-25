@@ -241,6 +241,7 @@ impl Expr {
     }
 
     fn infer(&self, ctx: &mut Context) -> Result<Type, String> {
+        dbg!(&ctx);
         let result = match self {
             Expr::Proto(name, typ, expr) => {
                 ctx.typenv.insert(name.clone(), typ.clone());
@@ -274,7 +275,7 @@ impl Expr {
                             func_ctx.typenv.insert(name.clone(), anno);
                         }
                     }
-                    let value = value.infer(ctx)?;
+                    let value = value.infer(&mut func_ctx)?;
                     ctx.functx.insert(name, func_ctx);
                     if *ret != value {
                         return Err(format!(
