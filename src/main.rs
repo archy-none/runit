@@ -292,7 +292,7 @@ impl Expr {
                             "type not matched between prototype declaration and result of type inference: {ret:?} != {value:?}"
                         ));
                     }
-                    *ret
+                    expr.infer(ctx)?
                 }
                 _ => return Err("invalid binding".to_owned()),
             },
