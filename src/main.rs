@@ -344,6 +344,16 @@ impl Expr {
             ))
         } else {
             let tokens: Vec<String> = tokenize(source, SPACE.as_ref())?;
+            let funccall = || {
+                let name = ok!(tokens.first())?.trim();
+                let args: Vec<String> = tokenize(source, ",")?;
+                Ok::<Expr, String>(Expr::Function(
+                    ok!(Name::new(name))?,
+                    args.iter()
+                        .map(|arg| Expr::parse(&arg))
+                        .collect::<Result<Vec<_>, String>>()?,
+                ))
+            };
             let binopergen = |n: usize| {
                 let op = ok!(tokens.get(n))?;
                 let lhs = &ok!(tokens.get(..n))?.join(SPACE);
