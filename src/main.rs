@@ -15,7 +15,7 @@ fn main() {
 
 fn build() -> Result<String, String> {
     let mut ctx = Context::default();
-    let code = include_str!("../example.rn");
+    let code = include_str!("../example.tr");
     let ast = Expr::parse(code)?;
     ast.infer(&mut ctx)?;
     ast.visit(&mut ctx)?;
