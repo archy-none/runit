@@ -346,7 +346,7 @@ impl Expr {
             let tokens: Vec<String> = tokenize(source, SPACE.as_ref())?;
             let funccall = || {
                 let name = ok!(tokens.first())?.trim();
-                let args: Vec<String> = tokenize(source, ",")?;
+                let args: Vec<String> = tokenize(&ok!(tokens.get(1..))?.join(SPACE), ",")?;
                 Ok::<Expr, String>(Expr::Function(
                     ok!(Name::new(name))?,
                     args.iter()
