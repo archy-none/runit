@@ -37,6 +37,7 @@ enum Expr {
     Variable(Name),
     String(String),
     Integer(isize),
+    Bool(bool),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -89,6 +90,9 @@ impl Expr {
                     Ok(name.to_string())
                 }
             }
+            Expr::String(value) => Ok(format!("String::from(\"{value}\")")),
+            Expr::Integer(value) => Ok(format!("{value}isize")),
+            Expr::Bool(value) => Ok(format!("{value}")),
             Expr::Operator(op, terms) => match op.as_str() {
                 "+" => match terms.as_slice() {
                     [lhs, rhs] => {
@@ -187,8 +191,6 @@ impl Expr {
                 },
                 _ => todo!(),
             },
-            Expr::String(value) => Ok(format!("String::from(\"{value}\")")),
-            Expr::Integer(value) => Ok(format!("{value}usize")),
         }
     }
 
@@ -239,6 +241,7 @@ impl Expr {
             Expr::Variable(name) => ok!(ctx.typenv.get(name).cloned())?,
             Expr::Integer(_) => Type::Integer,
             Expr::String(_) => Type::String,
+            Expr::Bool(_) => Type::Bool,
             Expr::Operator(op, terms) => {
                 let typs = terms
                     .iter()
