@@ -1,2 +1,5 @@
-proto a = Int Int, Int in
-a 1, 3
+let a = "Hello" + "World" in
+let b = 10 / 2 in
+let a = a * b in
+let c = a in
+a
