@@ -18,6 +18,7 @@ impl Type {
         match source {
             "Int" => Ok(Type::Integer),
             "Str" => Ok(Type::String),
+            "Bool" => Ok(Type::Bool),
             _ => {
                 let tokens: Vec<String> = tokenize(source, SPACE.as_ref())?;
                 let ret = ok!(tokens.first())?.trim();
