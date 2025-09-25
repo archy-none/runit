@@ -1,4 +1,3 @@
 let a = "Hello" in
 let b = 100 in
-let b = a in
 a
