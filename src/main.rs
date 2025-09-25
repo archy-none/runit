@@ -272,9 +272,14 @@ impl Expr {
                         if let Expr::Variable(name) = param {
                             func_ctx.typenv.insert(name.clone(), anno);
                         }
-                        let value = value.infer(ctx)?;
                     }
+                    let value = value.infer(ctx)?;
                     ctx.functx.insert(name, func_ctx);
+                    if *ret != value {
+                        return Err(format!(
+                            "not matched between prototype declaration and result of type inference: {ret:?} != {value:?}"
+                        ));
+                    }
                     *ret
                 }
                 _ => return Err("invalid binding".to_owned()),
