@@ -111,7 +111,7 @@ impl Expr {
                         let rhs = rhs.compile(ctx)?;
                         match ok!(ctx.typexp.get(self))? {
                             Type::Integer => Ok(format!("{lhs} + {rhs}")),
-                            Type::String => Ok(format!("{lhs} + &{rhs}")),
+                            Type::String => Ok(format!("[{lhs}, {rhs}].concat()")),
                             Type::Bool => Ok(format!("{lhs} || {rhs}")),
                             _ => todo!(),
                         }
