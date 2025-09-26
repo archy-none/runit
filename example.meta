@@ -259,7 +259,7 @@ Context {
                     ),
                 ): Integer,
                 Integer(
-                    3,
+                    -3,
                 ): Integer,
                 Function(
                     Name(
@@ -272,7 +272,7 @@ Context {
                             ),
                         ),
                         Integer(
-                            3,
+                            -3,
                         ),
                     ],
                 ): Integer,
@@ -303,7 +303,7 @@ Context {
                                     ),
                                 ),
                                 Integer(
-                                    3,
+                                    -3,
                                 ),
                             ],
                         ),
@@ -677,7 +677,7 @@ Context {
                                         ),
                                     ),
                                     Integer(
-                                        3,
+                                        -3,
                                     ),
                                 ],
                             ),
@@ -876,7 +876,7 @@ Context {
                                     ),
                                 ),
                                 Integer(
-                                    3,
+                                    -3,
                                 ),
                             ],
                         ),
@@ -1080,7 +1080,7 @@ Context {
                                         ),
                                     ),
                                     Integer(
-                                        3,
+                                        -3,
                                     ),
                                 ],
                             ),
@@ -1296,7 +1296,7 @@ Context {
                                             ),
                                         ),
                                         Integer(
-                                            3,
+                                            -3,
                                         ),
                                     ],
                                 ),
@@ -1524,7 +1524,7 @@ Context {
                                                 ),
                                             ),
                                             Integer(
-                                                3,
+                                                -3,
                                             ),
                                         ],
                                     ),
