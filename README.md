@@ -19,7 +19,7 @@ name
 所有権の「どの時点でクローンするべきか」という非本質的な問題に神経を尖らせなくて良い。
 ```rust
 let r#_name = String::from("Archy None");
-let r#_msg = r#_name.clone() + &String::from(", Hey");
+let r#_msg = [r#_name.clone(), String::from(", Hey")].concat();
 r#_name
 ```
 この機構はコンパイル時の静的解析で、参照カウンタを駆使して実現している。\
