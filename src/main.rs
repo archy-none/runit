@@ -126,7 +126,7 @@ impl Expr {
                         match ok!(ctx.typexp.get(self))? {
                             Type::Integer => Ok(format!("{lhs} + {rhs}")),
                             Type::String => Ok(format!("[{lhs}, {rhs}].concat()")),
-                            Type::Bool => Ok(format!("{lhs} || {rhs}")),
+                            Type::Boolean => Ok(format!("{lhs} || {rhs}")),
                             _ => todo!(),
                         }
                     }
@@ -151,7 +151,7 @@ impl Expr {
                         match ok!(ctx.typexp.get(self))? {
                             Type::Integer => Ok(format!("{lhs} * {rhs}")),
                             Type::String => Ok(format!("{lhs}.repeat({rhs} as usize)")),
-                            Type::Bool => Ok(format!("{lhs} && {rhs}")),
+                            Type::Boolean => Ok(format!("{lhs} && {rhs}")),
                             _ => todo!(),
                         }
                     }
@@ -267,7 +267,7 @@ impl Expr {
         let result = match self {
             Expr::If(cond, then, els) => {
                 let cond = cond.infer(ctx)?;
-                if cond != Type::Bool {
+                if cond != Type::Boolean {
                     return Err(format!(
                         "conditional expression should returns boolean: {cond:?} != Bool"
                     ));
@@ -354,7 +354,7 @@ impl Expr {
             Expr::Variable(name) => ok!(ctx.typenv.get(name).cloned())?,
             Expr::Integer(_) => Type::Integer,
             Expr::String(_) => Type::String,
-            Expr::Bool(_) => Type::Bool,
+            Expr::Bool(_) => Type::Boolean,
             Expr::Operator(op, terms) => {
                 let typs = terms
                     .iter()
@@ -365,7 +365,7 @@ impl Expr {
                     "+" => match typs.as_slice() {
                         [Type::Integer, Type::Integer] => Type::Integer,
                         [Type::String, Type::String] => Type::String,
-                        [Type::Bool, Type::Bool] => Type::Bool,
+                        [Type::Boolean, Type::Boolean] => Type::Boolean,
                         _ => return err,
                     },
                     "-" => match typs.as_slice() {
@@ -376,7 +376,7 @@ impl Expr {
                     "*" => match typs.as_slice() {
                         [Type::Integer, Type::Integer] => Type::Integer,
                         [Type::String, Type::Integer] => Type::String,
-                        [Type::Bool, Type::Bool] => Type::Bool,
+                        [Type::Boolean, Type::Boolean] => Type::Boolean,
                         _ => return err,
                     },
                     "/" => match typs.as_slice() {
@@ -384,27 +384,27 @@ impl Expr {
                         _ => return err,
                     },
                     "==" => match typs.as_slice() {
-                        [lhs, rhs] if lhs == rhs => Type::Bool,
+                        [lhs, rhs] if lhs == rhs => Type::Boolean,
                         _ => return err,
                     },
                     "!=" => match typs.as_slice() {
-                        [lhs, rhs] if lhs == rhs => Type::Bool,
+                        [lhs, rhs] if lhs == rhs => Type::Boolean,
                         _ => return err,
                     },
                     "<" => match typs.as_slice() {
-                        [lhs, rhs] if lhs == rhs => Type::Bool,
+                        [lhs, rhs] if lhs == rhs => Type::Boolean,
                         _ => return err,
                     },
                     ">" => match typs.as_slice() {
-                        [lhs, rhs] if lhs == rhs => Type::Bool,
+                        [lhs, rhs] if lhs == rhs => Type::Boolean,
                         _ => return err,
                     },
                     "<=" => match typs.as_slice() {
-                        [lhs, rhs] if lhs == rhs => Type::Bool,
+                        [lhs, rhs] if lhs == rhs => Type::Boolean,
                         _ => return err,
                     },
                     ">=" => match typs.as_slice() {
-                        [lhs, rhs] if lhs == rhs => Type::Bool,
+                        [lhs, rhs] if lhs == rhs => Type::Boolean,
                         _ => return err,
                     },
                     _ => todo!(),
