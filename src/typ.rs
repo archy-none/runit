@@ -4,7 +4,7 @@ use crate::*;
 pub enum Type {
     String,
     Integer,
-    Bool,
+    Boolean,
     Function(Vec<Type>, Box<Type>),
 }
 
@@ -18,7 +18,7 @@ impl Type {
         match source {
             "Int" => Ok(Type::Integer),
             "Str" => Ok(Type::String),
-            "Bool" => Ok(Type::Bool),
+            "Bool" => Ok(Type::Boolean),
             _ => {
                 let (source, ret) = ok!(source.split_once("->"))?;
                 let args: Vec<String> = tokenize(source, ",")?;
@@ -39,7 +39,7 @@ impl Type {
         match self {
             Type::Integer => "isize".to_string(),
             Type::String => "String".to_string(),
-            Type::Bool => "bool".to_string(),
+            Type::Boolean => "bool".to_string(),
             Type::Function(args, ret) => format!(
                 "fn({}) -> {}",
                 args.iter()
