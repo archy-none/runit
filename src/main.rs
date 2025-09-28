@@ -37,7 +37,6 @@ struct Context {
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]
 enum Expr {
     If(Box<Expr>, Box<Expr>, Box<Expr>),
-    While(Box<Expr>, Box<Expr>, Box<Expr>),
     Proto(Name, Type, Box<Expr>),
     Let(Box<Expr>, Box<Expr>, Box<Expr>),
     Operator(String, Vec<Expr>),
@@ -57,12 +56,6 @@ impl Expr {
                 cond.compile(ctx)?,
                 indent!(then.compile(ctx)?),
                 indent!(els.compile(ctx)?),
-            )),
-            Expr::While(cond, body, after) => Ok(format!(
-                "while {} {{ {} }}\n{}",
-                cond.compile(ctx)?,
-                indent!(body.compile(ctx)?),
-                after.compile(ctx)?,
             )),
             Expr::Let(name, value, expr) => Ok(match *name.clone() {
                 Expr::Variable(name) => {
@@ -253,10 +246,10 @@ impl Expr {
                 }
             }
             Expr::Proto(_, _, expr) => expr.visit(ctx)?,
-            Expr::If(a, b, c) | Expr::While(a, b, c) => {
-                a.visit(ctx)?;
-                b.visit(ctx)?;
-                c.visit(ctx)?;
+            Expr::If(cond, then, els) => {
+                cond.visit(ctx)?;
+                then.visit(ctx)?;
+                els.visit(ctx)?;
             }
             Expr::Bool(_) | Expr::String(_) | Expr::Integer(_) | Expr::Kind(_) => {}
         };
