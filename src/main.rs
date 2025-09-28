@@ -27,11 +27,11 @@ pub const SPACE: &str = " ";
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 struct Context {
+    refcnt: IndexMap<Name, usize>,
     mutenv: IndexMap<Name, bool>,
     functx: IndexMap<Name, Context>,
     typenv: IndexMap<Name, Type>,
     typexp: IndexMap<Expr, Type>,
-    refcnt: IndexMap<Name, usize>,
 }
 
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]
