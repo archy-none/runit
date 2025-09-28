@@ -253,7 +253,12 @@ impl Expr {
                 }
             }
             Expr::Proto(_, _, expr) => expr.visit(ctx)?,
-            _ => {}
+            Expr::If(a, b, c) | Expr::While(a, b, c) => {
+                a.visit(ctx)?;
+                b.visit(ctx)?;
+                c.visit(ctx)?;
+            }
+            Expr::Bool(_) | Expr::String(_) | Expr::Integer(_) | Expr::Kind(_) => {}
         };
         Ok(())
     }
