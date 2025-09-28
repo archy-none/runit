@@ -1,9 +1,11 @@
 Context {
+    refcnt: {},
     mutenv: {},
     functx: {
         Name(
             "add",
         ): Context {
+            refcnt: {},
             mutenv: {},
             functx: {},
             typenv: {
@@ -94,16 +96,27 @@ Context {
                     ),
                 ): Integer,
             },
-            refcnt: {},
         },
         Name(
             "main",
         ): Context {
+            refcnt: {
+                Name(
+                    "c",
+                ): 2,
+                Name(
+                    "d",
+                ): 2,
+                Name(
+                    "e",
+                ): 1,
+            },
             mutenv: {},
             functx: {
                 Name(
                     "add",
                 ): Context {
+                    refcnt: {},
                     mutenv: {},
                     functx: {},
                     typenv: {
@@ -194,7 +207,6 @@ Context {
                             ),
                         ): Integer,
                     },
-                    refcnt: {},
                 },
             },
             typenv: {
@@ -771,17 +783,6 @@ Context {
                         ),
                     ),
                 ): String,
-            },
-            refcnt: {
-                Name(
-                    "c",
-                ): 2,
-                Name(
-                    "d",
-                ): 2,
-                Name(
-                    "e",
-                ): 1,
             },
         },
     },
@@ -1636,5 +1637,4 @@ Context {
             ),
         ): String,
     },
-    refcnt: {},
 }
