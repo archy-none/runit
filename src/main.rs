@@ -265,6 +265,21 @@ impl Expr {
 
     fn infer(&self, ctx: &mut Context) -> Result<Type, String> {
         let result = match self {
+            Expr::If(cond, then, els) => {
+                let cond = cond.infer(ctx)?;
+                if cond != Type::Bool {
+                    return Err(format!(
+                        "conditional expression should returns boolean: {cond:?} != Bool"
+                    ));
+                }
+                let [then, els] = [then.infer(ctx)?, els.infer(ctx)?];
+                if then != els {
+                    return Err(format!(
+                        "type not matched between then-block and else-block: {then:?} != {els:?}"
+                    ));
+                }
+                then
+            }
             Expr::Proto(name, typ, expr) => {
                 ctx.typenv.insert(name.clone(), typ.clone());
                 expr.infer(ctx)?
