@@ -1,8 +1,13 @@
 fn main() {
 	println!("{}", {
 		fn r#_add(r#_a: isize, r#_b: isize) -> isize {
-			let r#_c = r#_a;
-			r#_b + r#_c
+			let r#_c = r#_a + r#_b;
+			if r#_c > 0isize {
+				r#_c
+			} else {
+				let r#_d = 1isize;
+				r#_d
+			}
 		}
 		fn r#_main(r#_a: String, r#_b: isize) -> String {
 			let r#_n = r#_add(1isize + 2isize, r#_add(r#_b, -3isize));
