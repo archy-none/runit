@@ -36,6 +36,9 @@ Context {
                 Name(
                     "c",
                 ): Integer,
+                Name(
+                    "d",
+                ): Integer,
             },
             typexp: {
                 Variable(
@@ -48,25 +51,99 @@ Context {
                         "b",
                     ),
                 ): Integer,
-                Variable(
-                    Name(
-                        "c",
-                    ),
-                ): Integer,
                 Operator(
                     "+",
                     [
                         Variable(
                             Name(
+                                "a",
+                            ),
+                        ),
+                        Variable(
+                            Name(
                                 "b",
                             ),
                         ),
+                    ],
+                ): Integer,
+                Variable(
+                    Name(
+                        "c",
+                    ),
+                ): Integer,
+                Integer(
+                    0,
+                ): Integer,
+                Operator(
+                    ">",
+                    [
                         Variable(
                             Name(
                                 "c",
                             ),
                         ),
+                        Integer(
+                            0,
+                        ),
                     ],
+                ): Boolean,
+                Integer(
+                    1,
+                ): Integer,
+                Variable(
+                    Name(
+                        "d",
+                    ),
+                ): Integer,
+                Let(
+                    Variable(
+                        Name(
+                            "d",
+                        ),
+                    ),
+                    Integer(
+                        1,
+                    ),
+                    Variable(
+                        Name(
+                            "d",
+                        ),
+                    ),
+                ): Integer,
+                If(
+                    Operator(
+                        ">",
+                        [
+                            Variable(
+                                Name(
+                                    "c",
+                                ),
+                            ),
+                            Integer(
+                                0,
+                            ),
+                        ],
+                    ),
+                    Variable(
+                        Name(
+                            "c",
+                        ),
+                    ),
+                    Let(
+                        Variable(
+                            Name(
+                                "d",
+                            ),
+                        ),
+                        Integer(
+                            1,
+                        ),
+                        Variable(
+                            Name(
+                                "d",
+                            ),
+                        ),
+                    ),
                 ): Integer,
                 Let(
                     Variable(
@@ -74,25 +151,55 @@ Context {
                             "c",
                         ),
                     ),
-                    Variable(
-                        Name(
-                            "a",
-                        ),
-                    ),
                     Operator(
                         "+",
                         [
                             Variable(
                                 Name(
-                                    "b",
+                                    "a",
                                 ),
                             ),
                             Variable(
                                 Name(
-                                    "c",
+                                    "b",
                                 ),
                             ),
                         ],
+                    ),
+                    If(
+                        Operator(
+                            ">",
+                            [
+                                Variable(
+                                    Name(
+                                        "c",
+                                    ),
+                                ),
+                                Integer(
+                                    0,
+                                ),
+                            ],
+                        ),
+                        Variable(
+                            Name(
+                                "c",
+                            ),
+                        ),
+                        Let(
+                            Variable(
+                                Name(
+                                    "d",
+                                ),
+                            ),
+                            Integer(
+                                1,
+                            ),
+                            Variable(
+                                Name(
+                                    "d",
+                                ),
+                            ),
+                        ),
                     ),
                 ): Integer,
             },
@@ -147,6 +254,9 @@ Context {
                         Name(
                             "c",
                         ): Integer,
+                        Name(
+                            "d",
+                        ): Integer,
                     },
                     typexp: {
                         Variable(
@@ -159,25 +269,99 @@ Context {
                                 "b",
                             ),
                         ): Integer,
-                        Variable(
-                            Name(
-                                "c",
-                            ),
-                        ): Integer,
                         Operator(
                             "+",
                             [
                                 Variable(
                                     Name(
+                                        "a",
+                                    ),
+                                ),
+                                Variable(
+                                    Name(
                                         "b",
                                     ),
                                 ),
+                            ],
+                        ): Integer,
+                        Variable(
+                            Name(
+                                "c",
+                            ),
+                        ): Integer,
+                        Integer(
+                            0,
+                        ): Integer,
+                        Operator(
+                            ">",
+                            [
                                 Variable(
                                     Name(
                                         "c",
                                     ),
                                 ),
+                                Integer(
+                                    0,
+                                ),
                             ],
+                        ): Boolean,
+                        Integer(
+                            1,
+                        ): Integer,
+                        Variable(
+                            Name(
+                                "d",
+                            ),
+                        ): Integer,
+                        Let(
+                            Variable(
+                                Name(
+                                    "d",
+                                ),
+                            ),
+                            Integer(
+                                1,
+                            ),
+                            Variable(
+                                Name(
+                                    "d",
+                                ),
+                            ),
+                        ): Integer,
+                        If(
+                            Operator(
+                                ">",
+                                [
+                                    Variable(
+                                        Name(
+                                            "c",
+                                        ),
+                                    ),
+                                    Integer(
+                                        0,
+                                    ),
+                                ],
+                            ),
+                            Variable(
+                                Name(
+                                    "c",
+                                ),
+                            ),
+                            Let(
+                                Variable(
+                                    Name(
+                                        "d",
+                                    ),
+                                ),
+                                Integer(
+                                    1,
+                                ),
+                                Variable(
+                                    Name(
+                                        "d",
+                                    ),
+                                ),
+                            ),
                         ): Integer,
                         Let(
                             Variable(
@@ -185,25 +369,55 @@ Context {
                                     "c",
                                 ),
                             ),
-                            Variable(
-                                Name(
-                                    "a",
-                                ),
-                            ),
                             Operator(
                                 "+",
                                 [
                                     Variable(
                                         Name(
-                                            "b",
+                                            "a",
                                         ),
                                     ),
                                     Variable(
                                         Name(
-                                            "c",
+                                            "b",
                                         ),
                                     ),
                                 ],
+                            ),
+                            If(
+                                Operator(
+                                    ">",
+                                    [
+                                        Variable(
+                                            Name(
+                                                "c",
+                                            ),
+                                        ),
+                                        Integer(
+                                            0,
+                                        ),
+                                    ],
+                                ),
+                                Variable(
+                                    Name(
+                                        "c",
+                                    ),
+                                ),
+                                Let(
+                                    Variable(
+                                        Name(
+                                            "d",
+                                        ),
+                                    ),
+                                    Integer(
+                                        1,
+                                    ),
+                                    Variable(
+                                        Name(
+                                            "d",
+                                        ),
+                                    ),
+                                ),
                             ),
                         ): Integer,
                     },
@@ -1009,25 +1223,55 @@ Context {
                         "c",
                     ),
                 ),
-                Variable(
-                    Name(
-                        "a",
-                    ),
-                ),
                 Operator(
                     "+",
                     [
                         Variable(
                             Name(
-                                "b",
+                                "a",
                             ),
                         ),
                         Variable(
                             Name(
-                                "c",
+                                "b",
                             ),
                         ),
                     ],
+                ),
+                If(
+                    Operator(
+                        ">",
+                        [
+                            Variable(
+                                Name(
+                                    "c",
+                                ),
+                            ),
+                            Integer(
+                                0,
+                            ),
+                        ],
+                    ),
+                    Variable(
+                        Name(
+                            "c",
+                        ),
+                    ),
+                    Let(
+                        Variable(
+                            Name(
+                                "d",
+                            ),
+                        ),
+                        Integer(
+                            1,
+                        ),
+                        Variable(
+                            Name(
+                                "d",
+                            ),
+                        ),
+                    ),
                 ),
             ),
             Let(
@@ -1225,25 +1469,55 @@ Context {
                             "c",
                         ),
                     ),
-                    Variable(
-                        Name(
-                            "a",
-                        ),
-                    ),
                     Operator(
                         "+",
                         [
                             Variable(
                                 Name(
-                                    "b",
+                                    "a",
                                 ),
                             ),
                             Variable(
                                 Name(
-                                    "c",
+                                    "b",
                                 ),
                             ),
                         ],
+                    ),
+                    If(
+                        Operator(
+                            ">",
+                            [
+                                Variable(
+                                    Name(
+                                        "c",
+                                    ),
+                                ),
+                                Integer(
+                                    0,
+                                ),
+                            ],
+                        ),
+                        Variable(
+                            Name(
+                                "c",
+                            ),
+                        ),
+                        Let(
+                            Variable(
+                                Name(
+                                    "d",
+                                ),
+                            ),
+                            Integer(
+                                1,
+                            ),
+                            Variable(
+                                Name(
+                                    "d",
+                                ),
+                            ),
+                        ),
                     ),
                 ),
                 Let(
@@ -1453,25 +1727,55 @@ Context {
                                 "c",
                             ),
                         ),
-                        Variable(
-                            Name(
-                                "a",
-                            ),
-                        ),
                         Operator(
                             "+",
                             [
                                 Variable(
                                     Name(
-                                        "b",
+                                        "a",
                                     ),
                                 ),
                                 Variable(
                                     Name(
-                                        "c",
+                                        "b",
                                     ),
                                 ),
                             ],
+                        ),
+                        If(
+                            Operator(
+                                ">",
+                                [
+                                    Variable(
+                                        Name(
+                                            "c",
+                                        ),
+                                    ),
+                                    Integer(
+                                        0,
+                                    ),
+                                ],
+                            ),
+                            Variable(
+                                Name(
+                                    "c",
+                                ),
+                            ),
+                            Let(
+                                Variable(
+                                    Name(
+                                        "d",
+                                    ),
+                                ),
+                                Integer(
+                                    1,
+                                ),
+                                Variable(
+                                    Name(
+                                        "d",
+                                    ),
+                                ),
+                            ),
                         ),
                     ),
                     Let(
