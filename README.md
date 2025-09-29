@@ -22,5 +22,4 @@ let r#_name = String::from("Archy None");
 let r#_msg = [r#_name.clone(), String::from(", Hey")].concat();
 r#_name
 ```
-この機構はコンパイル時の静的解析で、参照カウンタを駆使して実現している。\
-嘘だと思うなら実装を見るが良い。リファクタや修正のPRは歓迎する。
+この機構はコンパイル時の静的解析で、参照カウンタを駆使して実現している。
