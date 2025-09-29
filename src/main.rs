@@ -52,7 +52,7 @@ impl Expr {
     fn compile(&self, ctx: &mut Context) -> Result<String, String> {
         match self {
             Expr::If(cond, then, els) => Ok(format!(
-                "if {} {{ {} }} else {{ {} }}",
+                "if {} {{\n{}\n}} else {{\n{}\n}}",
                 cond.compile(ctx)?,
                 indent!(then.compile(ctx)?),
                 indent!(els.compile(ctx)?),
